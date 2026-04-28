@@ -9,6 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#0a0a0a;--bg2:#111111;--bg3:#1a1a1a;--bg4:#222222;--gold:#c9a84c;--gold2:#e8c56a;--gold3:#a07830;--white:#ffffff;--gray:#888888;--gray2:#555555;--red:#e05555;--green:#4caf50;--orange:#ff9800;--radius:12px;--radius2:8px;--transition:0.2s ease}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -32,6 +33,8 @@ a{color:var(--gold);text-decoration:none}
 .btn-gold:hover{background:linear-gradient(135deg,var(--gold2),var(--gold));transform:translateY(-1px)}
 .btn-outline{background:transparent;border:1px solid var(--gold3);color:var(--gold)}
 .btn-outline:hover{background:rgba(201,168,76,0.1);border-color:var(--gold)}
+.btn-cloud{background:transparent;border:1px solid var(--gold3);color:var(--gold);transition:var(--transition)}
+.btn-cloud:hover{background:var(--gold);color:#000;border-color:var(--gold)}
 .btn-ghost{background:transparent;border:1px solid var(--gray2);color:var(--gray)}
 .btn-ghost:hover{border-color:var(--gray);color:var(--white)}
 .btn-danger{background:rgba(224,85,85,0.15);border:1px solid var(--red);color:var(--red)}
@@ -169,6 +172,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .modal-title{font-size:18px;font-weight:700}
 .modal-close{background:transparent;border:none;color:var(--gray);cursor:pointer;font-size:20px;line-height:1;padding:4px}
 .modal-close:hover{color:var(--white)}
+/* Modal de link público */
+.modal-box-sm{max-width:460px}
+.link-modal-success{font-size:18px;font-weight:700;color:var(--green)}
+.link-modal-box{background:var(--bg3);border:1px solid var(--bg4);border-radius:var(--radius2);padding:10px 14px;font-size:11px;color:var(--gold);word-break:break-all;margin-bottom:14px;cursor:pointer;user-select:all}
+.link-modal-box:hover{border-color:var(--gold3)}
+.link-modal-actions{display:flex;gap:10px;margin-bottom:14px}
+.link-modal-actions .btn{flex:1;justify-content:center}
+.link-modal-hint{font-size:11px;color:var(--gray);text-align:center;line-height:1.5}
+/* Ícone de link no histórico */
+.history-link-btn{background:transparent;border:1px solid var(--gold3);color:var(--gold);border-radius:var(--radius2);padding:4px 8px;font-size:11px;cursor:pointer;transition:var(--transition)}
+.history-link-btn:hover{background:var(--gold);color:#000}
 
 /* TABLE */
 table{width:100%;border-collapse:collapse;font-size:13px}
@@ -535,6 +549,7 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
     <button class="btn-new" onclick="confirmNewCadastro()" title="Novo Cadastro">＋<span class="btn-new-text"> Novo Cadastro</span></button>
     <button class="btn btn-ghost btn-sm" onclick="openHistoryModal()">📋 Histórico</button>
     <button class="btn btn-outline btn-sm" onclick="saveEvaluation()">💾 Salvar</button>
+    <button class="btn btn-cloud btn-sm" id="btnSalvarNuvem" onclick="salvarNoSupabase()">☁ Salvar na Nuvem</button>
     <button class="btn btn-gold btn-sm" onclick="generatePDF()">📄 PDF</button>
   </div>
 </div>
@@ -1124,6 +1139,23 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
   </div>
 </div>
 
+<!-- LINK MODAL -->
+<div class="modal" id="linkModal">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-header" style="margin-bottom:16px">
+      <div class="link-modal-success">✓ Avaliação Salva na Nuvem</div>
+      <button class="modal-close" onclick="closeModal('linkModal')">✕</button>
+    </div>
+    <p style="font-size:12px;color:var(--gray);margin-bottom:8px">Link do aluno:</p>
+    <div class="link-modal-box" id="linkModalUrl" onclick="copiarLink()"></div>
+    <div class="link-modal-actions">
+      <button class="btn btn-outline" id="btnCopiarLink" onclick="copiarLink()">📋 Copiar Link</button>
+      <button class="btn btn-gold" onclick="compartilharWhatsApp()">💬 Compartilhar</button>
+    </div>
+    <p class="link-modal-hint">Envie este link para o aluno visualizar sua avaliação completa.</p>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -1146,6 +1178,120 @@ let _metabState = { tmb:0, get:0, calAlvo:0, protG:0, carbG:0, gordG:0, ajuste:0
 let avaliacaoAtual = {};
 let _diagPostural = null;
 let _diagEscoliose = null;
+
+// ===================== SUPABASE =====================
+const SUPABASE_URL = 'https://kwdlicxmwlhbpppnixec.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tyIGoNPovi8ZjMohMis62w_vU7ljTv9';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Link ativo exibido no modal (acessível por copiarLink e compartilharWhatsApp)
+let _linkAtivo = '';
+
+function gerarLinkAluno(token) {
+  const baseUrl = 'https://pump360-avaliacao.vercel.app';
+  const link = baseUrl + '/avaliacao.html?token=' + token;
+
+  // Salvar link no objeto
+  avaliacaoAtual.linkPublico = link;
+  saveDraft();
+
+  // Exibir modal com o link
+  exibirModalLink(link);
+}
+
+function exibirModalLink(link) {
+  _linkAtivo = link;
+  const urlEl = document.getElementById('linkModalUrl');
+  if(urlEl) urlEl.textContent = link;
+  const copyBtn = document.getElementById('btnCopiarLink');
+  if(copyBtn){ copyBtn.textContent = '📋 Copiar Link'; }
+  document.getElementById('linkModal').classList.add('open');
+}
+
+function copiarLink() {
+  if(!_linkAtivo) return;
+  navigator.clipboard.writeText(_linkAtivo).then(function(){
+    const btn = document.getElementById('btnCopiarLink');
+    if(btn){ btn.textContent = '✓ Copiado!'; }
+    setTimeout(function(){
+      const b = document.getElementById('btnCopiarLink');
+      if(b){ b.textContent = '📋 Copiar Link'; }
+    }, 2000);
+  }).catch(function(){
+    // Fallback para browsers sem clipboard API
+    const ta = document.createElement('textarea');
+    ta.value = _linkAtivo;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.getElementById('btnCopiarLink');
+    if(btn){ btn.textContent = '✓ Copiado!'; }
+    setTimeout(function(){
+      const b = document.getElementById('btnCopiarLink');
+      if(b){ b.textContent = '📋 Copiar Link'; }
+    }, 2000);
+  });
+}
+
+function compartilharWhatsApp() {
+  if(!_linkAtivo) return;
+  const msg = 'Olá! Sua avaliação física está disponível:\n' + _linkAtivo + '\n\nAcesse pelo celular para ver seus resultados.';
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+async function salvarNoSupabase() {
+  const btn = document.getElementById('btnSalvarNuvem');
+  try {
+    // Mostrar estado "Salvando..."
+    if(btn){ btn.disabled = true; btn.innerHTML = '<span class="btn-cloud-spinner"></span> Salvando…'; }
+
+    // Coletar todos os dados antes de salvar
+    coletarTodosDados();
+
+    const { data, error } = await supabaseClient
+      .from('avaliacoes')
+      .insert([{
+        personal_id: 'fabio',
+        dados: avaliacaoAtual
+      }])
+      .select();
+
+    if(error) throw error;
+
+    // Pegar token gerado automaticamente
+    const token = data[0].token;
+    const id    = data[0].id;
+
+    // Salvar token no objeto local
+    avaliacaoAtual.supabaseToken = token;
+    avaliacaoAtual.supabaseId    = id;
+
+    // Salvar no localStorage também
+    saveDraft();
+
+    // Feedback de sucesso + gerar link
+    if(btn){ btn.innerHTML = '✓ Salvo!'; btn.style.color='var(--green)'; btn.style.borderColor='var(--green)'; }
+    setTimeout(function(){
+      if(btn){ btn.disabled=false; btn.innerHTML='☁ Salvar na Nuvem'; btn.style.color=''; btn.style.borderColor=''; }
+    }, 2000);
+
+    // Gerar e exibir link do aluno
+    gerarLinkAluno(token);
+
+    return { token, id };
+
+  } catch(err) {
+    console.error('Erro ao salvar no Supabase:', err);
+    // Feedback de erro
+    if(btn){ btn.innerHTML = '✗ Erro ao salvar'; btn.style.color='var(--red)'; btn.style.borderColor='var(--red)'; }
+    setTimeout(function(){
+      if(btn){ btn.disabled=false; btn.innerHTML='☁ Salvar na Nuvem'; btn.style.color=''; btn.style.borderColor=''; }
+    }, 2000);
+    return null;
+  }
+}
 
 // ===================== INIT =====================
 document.addEventListener('DOMContentLoaded', () => {
@@ -3388,7 +3534,7 @@ function openHistoryModal(){
     el.innerHTML = history.map((ev,i)=>`
       <div class="history-item">
         <div class="history-item-info">
-          <div class="name">${ev.nome||'Sem nome'}</div>
+          <div class="name">${ev.nome||'Sem nome'}${ev.linkPublico?` <span style="font-size:11px;color:var(--gold);font-weight:400">☁</span>`:''}</div>
           <div class="date">${formatDate(ev.dataAvaliacao||ev.timestamp)} · ${ev.objetivo||''}</div>
         </div>
         <div class="history-item-metrics">
@@ -3397,6 +3543,7 @@ function openHistoryModal(){
           ${ev.antrop?.peso?`<div class="history-metric"><div class="val">${ev.antrop.peso}</div><div class="lbl">kg</div></div>`:''}
         </div>
         <div class="history-item-actions">
+          ${ev.linkPublico?`<button class="history-link-btn" title="Link do aluno" onclick="exibirModalLink(${JSON.stringify(ev.linkPublico)})">🔗 Link</button>`:''}
           <button class="btn btn-outline btn-sm" onclick="loadEvaluation(${i})">Carregar</button>
           <button class="btn btn-danger btn-sm" onclick="deleteEvaluation(${i})">✕</button>
         </div>

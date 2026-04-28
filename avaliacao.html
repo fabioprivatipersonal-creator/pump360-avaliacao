@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avaliação Física — Método PUMP360</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0a; --bg2:#111111; --bg3:#1a1a1a; --bg4:#222222;
+  --gold:#c9a84c; --gold2:#e8c56a; --gold3:#a07830;
+  --white:#ffffff; --gray:#888888; --muted:#555555;
+  --green:#4caf50; --red:#e05555; --orange:#ff9800;
+  --radius:12px; --radius2:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);font-size:14px;min-height:100vh}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--gold3);border-radius:3px}
+a{color:var(--gold)}
+
+/* ── Loading ─────────────────────────────── */
+#screenLoading{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;gap:20px;padding:24px;text-align:center;
+}
+.loading-logo{font-size:32px;font-weight:900;letter-spacing:2px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.spinner{width:36px;height:36px;border:3px solid var(--bg3);
+  border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:var(--gray)}
+
+/* ── Error ───────────────────────────────── */
+#screenError{
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;gap:16px;padding:24px;text-align:center;
+}
+.error-icon{font-size:48px}
+.error-title{font-size:20px;font-weight:700;color:var(--red)}
+.error-sub{font-size:13px;color:var(--gray)}
+
+/* ── Content ─────────────────────────────── */
+#screenContent{display:none}
+.page-wrap{max-width:600px;margin:0 auto;padding:0 16px 48px}
+
+/* ── Header ──────────────────────────────── */
+.header-band{
+  background:linear-gradient(135deg,#111,#1a1400);
+  border-bottom:2px solid var(--gold3);
+  padding:28px 16px 24px;text-align:center;margin-bottom:24px;
+}
+.header-logo{
+  font-size:26px;font-weight:900;letter-spacing:3px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:4px;
+}
+.header-sub{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px}
+.header-nome{font-size:24px;font-weight:700;margin-bottom:4px}
+.header-data{font-size:12px;color:var(--gray);margin-bottom:4px}
+.header-personal{font-size:11px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:1px}
+
+/* ── Section ─────────────────────────────── */
+.section{margin-bottom:20px}
+.section-title{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--gold);padding:0 0 8px;border-bottom:1px solid var(--bg3);margin-bottom:12px;
+}
+
+/* ── Cards destaque 2x2 ──────────────────── */
+.highlight-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hl-card{
+  background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius);
+  padding:16px 12px;text-align:center;
+}
+.hl-val{font-size:28px;font-weight:900;color:var(--gold);line-height:1}
+.hl-unit{font-size:12px;color:var(--gray);margin-top:2px}
+.hl-lbl{font-size:11px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:0.8px}
+
+/* ── Composição corporal ─────────────────── */
+.comp-card{background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius);padding:16px}
+.comp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
+.comp-row-label{font-size:12px;color:var(--gray);white-space:nowrap}
+.comp-row-val{font-size:13px;font-weight:600;white-space:nowrap}
+.bar-wrap{flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;margin:0 10px}
+.bar-fill{height:100%;border-radius:4px;transition:width 0.8s ease}
+.bar-magra{background:var(--green)}
+.bar-gorda{background:var(--orange)}
+.comp-classification{
+  display:inline-block;padding:3px 10px;border-radius:20px;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+  background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid var(--gold3);
+}
+.comp-ideal-row{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:12px;padding-top:10px;border-top:1px solid var(--bg3);
+}
+.comp-ideal-label{font-size:12px;color:var(--gray)}
+.comp-ideal-val{font-size:15px;font-weight:700;color:var(--gold2)}
+
+/* ── Metas ───────────────────────────────── */
+.metas-table{width:100%;border-collapse:collapse}
+.metas-table th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+  color:var(--gray);padding:6px 10px;text-align:left;border-bottom:1px solid var(--bg3)}
+.metas-table td{padding:8px 10px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.03)}
+.metas-table tr:last-child td{border-bottom:none}
+.metas-table .col-hoje{color:var(--white)}
+.metas-table .col-meta{color:var(--gold);font-weight:600}
+.delta{font-size:11px;font-weight:600}
+.delta-pos{color:var(--green)}
+.delta-neg{color:var(--red)}
+.delta-neu{color:var(--gray)}
+
+/* ── Hábitos ─────────────────────────────── */
+.habitos-list{display:flex;flex-direction:column;gap:8px}
+.habito-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius2);padding:10px 14px;
+}
+.habito-item.ativo{border-color:var(--gold3);background:rgba(201,168,76,0.06)}
+.habito-dot{
+  width:22px;height:22px;border-radius:50%;border:2px solid var(--muted);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.habito-dot.ativo{background:var(--gold);border-color:var(--gold);color:#000}
+.habito-label{font-size:13px}
+.habito-item.ativo .habito-label{color:var(--white)}
+.habito-item:not(.ativo) .habito-label{color:var(--gray)}
+
+/* ── Metabolismo ─────────────────────────── */
+.metab-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.metab-card{
+  background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius2);
+  padding:12px 8px;text-align:center;
+}
+.metab-val{font-size:18px;font-weight:700;color:var(--gold)}
+.metab-lbl{font-size:9px;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
+.macro-row{display:flex;justify-content:space-between;align-items:center;
+  padding:7px 10px;border-radius:var(--radius2);margin-bottom:4px}
+.macro-row:nth-child(odd){background:var(--bg2)}
+.macro-lbl{font-size:12px;color:var(--gray)}
+.macro-val{font-size:12px;font-weight:600;color:var(--white)}
+
+/* ── Postural ────────────────────────────── */
+.postural-vista{
+  background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius2);
+  margin-bottom:8px;overflow:hidden;
+}
+.postural-vista-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 12px;cursor:pointer;
+}
+.postural-vista-header.ok{background:#1a2e1a}
+.postural-vista-header.alt{background:#2a1e00}
+.postural-vista-label{font-size:12px;font-weight:700}
+.postural-vista-label.ok{color:var(--green)}
+.postural-vista-label.alt{color:var(--gold)}
+.postural-vista-count{font-size:10px;color:var(--gray)}
+.postural-vista-body{padding:10px 12px;display:none}
+.postural-vista-body.open{display:block}
+.alt-badge{
+  display:inline-block;background:rgba(255,152,0,0.12);color:var(--orange);
+  border:1px solid rgba(255,152,0,0.3);border-radius:20px;
+  font-size:10px;padding:2px 8px;margin:2px 2px 2px 0;
+}
+.top5-list{list-style:none;padding:0}
+.top5-item{
+  display:flex;align-items:center;gap:12px;
+  padding:7px 0;border-bottom:1px solid var(--bg3);
+}
+.top5-item:last-child{border-bottom:none}
+.top5-num{font-size:20px;font-weight:900;color:var(--gold);min-width:24px;text-align:center}
+.top5-name{font-size:12px;color:var(--white)}
+.top5-freq{font-size:10px;color:var(--gray)}
+.sindrome-tag{
+  display:inline-block;padding:4px 10px;border-radius:20px;
+  font-size:11px;font-weight:600;margin:3px 3px 3px 0;
+  background:rgba(224,85,85,0.12);color:var(--red);border:1px solid rgba(224,85,85,0.3);
+}
+.escol-tag{
+  display:inline-block;padding:4px 10px;border-radius:20px;
+  font-size:11px;font-weight:600;margin:3px 0;
+  background:rgba(255,152,0,0.12);color:var(--orange);border:1px solid rgba(255,152,0,0.3);
+}
+.postural-empty{font-size:12px;color:var(--gray);font-style:italic;text-align:center;padding:12px 0}
+
+/* ── Mensagem do Personal ────────────────── */
+.mensagem-card{
+  background:rgba(201,168,76,0.05);
+  border:1px solid var(--gold3);border-radius:var(--radius);
+  padding:18px 16px;
+}
+.mensagem-header{
+  display:flex;align-items:center;gap:10px;margin-bottom:12px;
+}
+.mensagem-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold3),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:700;color:#000;flex-shrink:0;
+}
+.mensagem-who{font-size:12px;font-weight:700;color:var(--gold)}
+.mensagem-role{font-size:10px;color:var(--gray)}
+.mensagem-text{font-size:13px;color:var(--white);line-height:1.7;white-space:pre-wrap}
+
+/* ── Footer ──────────────────────────────── */
+.footer-band{
+  background:var(--bg2);border-top:1px solid var(--bg3);
+  padding:24px 16px;text-align:center;margin-top:32px;
+}
+.footer-logo{font-size:18px;font-weight:900;letter-spacing:2px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:6px;
+}
+.footer-info{font-size:11px;color:var(--gray);line-height:2}
+.footer-insta{font-size:12px;color:var(--gold);font-weight:600;margin-top:4px}
+
+/* ── Util ────────────────────────────────── */
+.chip{
+  display:inline-block;padding:3px 9px;border-radius:20px;
+  font-size:10px;font-weight:600;background:var(--bg3);color:var(--gray);
+  border:1px solid var(--bg4);margin:2px;
+}
+.divider{height:1px;background:var(--bg3);margin:20px 0}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="screenLoading">
+  <div class="loading-logo">MP360</div>
+  <div class="spinner"></div>
+  <div class="loading-text">Carregando sua avaliação...</div>
+</div>
+
+<!-- ERROR -->
+<div id="screenError">
+  <div class="error-icon">⚠️</div>
+  <div class="error-title" id="errorTitle">Avaliação não encontrada</div>
+  <div class="error-sub">Verifique o link com seu personal</div>
+</div>
+
+<!-- CONTENT -->
+<div id="screenContent">
+
+  <!-- 1. HEADER -->
+  <div class="header-band">
+    <div class="header-logo">MP360</div>
+    <div class="header-sub">Método PUMP360</div>
+    <div class="header-nome" id="hNome">—</div>
+    <div class="header-data" id="hData">—</div>
+    <div class="header-personal">Fabio Privati · CREF 128210-G/SP</div>
+  </div>
+
+  <div class="page-wrap">
+
+    <!-- 2. CARDS DE DESTAQUE -->
+    <div class="section">
+      <div class="section-title">Dados Principais</div>
+      <div class="highlight-grid">
+        <div class="hl-card">
+          <div class="hl-val" id="hlPeso">—</div>
+          <div class="hl-unit">kg</div>
+          <div class="hl-lbl">Peso Atual</div>
+        </div>
+        <div class="hl-card">
+          <div class="hl-val" id="hlGordura">—</div>
+          <div class="hl-unit">%</div>
+          <div class="hl-lbl">% Gordura</div>
+        </div>
+        <div class="hl-card">
+          <div class="hl-val" id="hlMagra">—</div>
+          <div class="hl-unit">kg</div>
+          <div class="hl-lbl">Massa Magra</div>
+        </div>
+        <div class="hl-card">
+          <div class="hl-val" id="hlImc">—</div>
+          <div class="hl-unit" id="hlImcClass" style="font-size:10px">—</div>
+          <div class="hl-lbl">IMC</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. COMPOSIÇÃO CORPORAL -->
+    <div class="section" id="sectionComposicao" style="display:none">
+      <div class="section-title">Composição Corporal</div>
+      <div class="comp-card">
+        <div class="comp-row">
+          <div class="comp-row-label">Massa Magra</div>
+          <div class="bar-wrap"><div class="bar-fill bar-magra" id="barMagra" style="width:0%"></div></div>
+          <div class="comp-row-val" id="compMagra">—</div>
+        </div>
+        <div class="comp-row" style="margin-bottom:14px">
+          <div class="comp-row-label">Massa Gorda</div>
+          <div class="bar-wrap"><div class="bar-fill bar-gorda" id="barGorda" style="width:0%"></div></div>
+          <div class="comp-row-val" id="compGorda">—</div>
+        </div>
+        <div>
+          <span class="comp-classification" id="compClassLabel">—</span>
+        </div>
+        <div class="comp-ideal-row">
+          <div class="comp-ideal-label">Peso Ideal Estimado</div>
+          <div class="comp-ideal-val" id="compIdeal">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. METAS 3 MESES -->
+    <div class="section" id="sectionMetas" style="display:none">
+      <div class="section-title">Metas para 3 Meses</div>
+      <div class="comp-card">
+        <table class="metas-table">
+          <thead>
+            <tr>
+              <th>Indicador</th>
+              <th>Hoje</th>
+              <th>Meta</th>
+              <th>Diferença</th>
+            </tr>
+          </thead>
+          <tbody id="metasBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. HÁBITOS -->
+    <div class="section" id="sectionHabitos" style="display:none">
+      <div class="section-title">Hábitos Comprometidos</div>
+      <div class="habitos-list" id="habitosList"></div>
+    </div>
+
+    <!-- 6. METABOLISMO -->
+    <div class="section" id="sectionMetabol" style="display:none">
+      <div class="section-title">Metabolismo e Nutrição</div>
+      <div class="metab-grid">
+        <div class="metab-card">
+          <div class="metab-val" id="metabTmb">—</div>
+          <div class="metab-lbl">TMB (kcal)</div>
+        </div>
+        <div class="metab-card">
+          <div class="metab-val" id="metabGet">—</div>
+          <div class="metab-lbl">Gasto Diário</div>
+        </div>
+        <div class="metab-card">
+          <div class="metab-val" id="metabMeta">—</div>
+          <div class="metab-lbl">Meta Calórica</div>
+        </div>
+      </div>
+      <div id="macrosList"></div>
+    </div>
+
+    <!-- 7. DIAGNÓSTICO POSTURAL -->
+    <div class="section" id="sectionPostural" style="display:none">
+      <div class="section-title">Diagnóstico Postural</div>
+      <div id="posturalBody"></div>
+    </div>
+
+    <!-- 8. MENSAGEM DO PERSONAL -->
+    <div class="section" id="sectionMensagem" style="display:none">
+      <div class="mensagem-card">
+        <div class="mensagem-header">
+          <div class="mensagem-avatar">F</div>
+          <div>
+            <div class="mensagem-who">Fabio Privati</div>
+            <div class="mensagem-role">Personal Trainer · Método PUMP360</div>
+          </div>
+        </div>
+        <div class="mensagem-text" id="mensagemText"></div>
+      </div>
+    </div>
+
+  </div><!-- /page-wrap -->
+
+  <!-- 9. FOOTER -->
+  <div class="footer-band">
+    <div class="footer-logo">MP360</div>
+    <div class="footer-info">
+      Avaliação realizada por Fabio Privati<br>
+      CREF 128210-G/SP<br>
+      Método PUMP360
+    </div>
+    <div class="footer-insta">@personal_fp</div>
+  </div>
+
+</div><!-- /screenContent -->
+
+<script>
+// ===================== CONFIG =====================
+const SUPABASE_URL = 'https://kwdlicxmwlhbpppnixec.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tyIGoNPovi8ZjMohMis62w_vU7ljTv9';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const HABITS_LABELS = {
+  h_agua:     'Beber 2 a 3L de água por dia',
+  h_alcool:   'Reduzir consumo de álcool',
+  h_cardio:   'Incluir cardio durante as semanas',
+  h_sono:     'Dormir 6 a 8 horas por noite',
+  h_proteina: 'Bater metas de proteína diária',
+  h_carga:    'Progredir carga semanalmente',
+};
+
+// ===================== HELPERS =====================
+function el(id){ return document.getElementById(id); }
+function show(id){ const e=el(id); if(e) e.style.display=''; }
+function num(v){ return parseFloat(String(v||'').replace(',','.'))||0; }
+function pct(part, total){ return total>0 ? Math.min(100,Math.max(0,(part/total)*100)).toFixed(1) : 0; }
+function fmt(v){ return (v && v!=='—' && v!=='') ? v : '—'; }
+
+function fmtDate(str){
+  if(!str) return '—';
+  try{
+    const d = new Date(str);
+    if(isNaN(d)) return str;
+    return d.toLocaleDateString('pt-BR');
+  } catch(e){ return str; }
+}
+
+function deltaHtml(hoje, meta, invertido){
+  // invertido = true quando queda é positiva (gordura, por ex.)
+  const h = num(hoje), m = num(meta);
+  if(!h || !m) return '<span class="delta delta-neu">—</span>';
+  const d = (m - h).toFixed(1);
+  const isPositive = invertido ? (parseFloat(d) < 0) : (parseFloat(d) > 0);
+  const cls = parseFloat(d) === 0 ? 'delta-neu' : (isPositive ? 'delta-pos' : 'delta-neg');
+  const sign = parseFloat(d) > 0 ? '+' : '';
+  return '<span class="delta '+cls+'">'+sign+d+'</span>';
+}
+
+// ===================== SCREENS =====================
+function mostrarErro(msg){
+  el('screenLoading').style.display = 'none';
+  el('errorTitle').textContent = msg || 'Avaliação não encontrada';
+  el('screenError').style.display = 'flex';
+}
+
+function mostrarConteudo(){
+  el('screenLoading').style.display = 'none';
+  el('screenContent').style.display = 'block';
+}
+
+// ===================== CARREGAR =====================
+async function carregarAvaliacao(){
+  const params = new URLSearchParams(window.location.search);
+  const token  = params.get('token');
+
+  if(!token){
+    mostrarErro('Link inválido');
+    return;
+  }
+
+  try {
+    const { data, error } = await sb
+      .from('avaliacoes')
+      .select('*')
+      .eq('token', token)
+      .single();
+
+    if(error || !data){
+      mostrarErro('Avaliação não encontrada');
+      return;
+    }
+
+    exibirAvaliacao(data.dados, data.created_at);
+
+  } catch(e){
+    mostrarErro('Erro ao carregar avaliação');
+  }
+}
+
+// ===================== EXIBIR =====================
+function exibirAvaliacao(d, createdAt){
+  if(!d){ mostrarErro('Dados inválidos'); return; }
+
+  const dp  = d.dadosPessoais  || {};
+  const ant = d.antropometria  || {};
+  const com = d.composicao     || {};
+  const met = d.metabolismo    || {};
+  const mt  = d.metas          || {};
+  const pos = d.diagnosticoPostural || {};
+
+  // ── 1. Header ──────────────────────────────────────
+  el('hNome').textContent = fmt(dp.nome);
+  const dataLabel = dp.dataAvaliacao && dp.dataAvaliacao !== '—'
+    ? 'Avaliação: ' + fmtDate(dp.dataAvaliacao)
+    : (createdAt ? 'Avaliação: ' + fmtDate(createdAt) : '');
+  el('hData').textContent = dataLabel;
+
+  // ── 2. Cards destaque ──────────────────────────────
+  el('hlPeso').textContent   = fmt(ant.peso);
+  el('hlGordura').textContent = fmt(com.percentualGordura).replace('%','');
+  el('hlMagra').textContent  = fmt(com.massaMagra).replace('kg','').trim();
+  el('hlImc').textContent    = fmt(ant.imc);
+  el('hlImcClass').textContent = fmt(ant.classificacaoImc);
+
+  // ── 3. Composição corporal ─────────────────────────
+  const mMagra = num(com.massaMagra);
+  const mGorda = num(com.massaGorda);
+  const mTotal = mMagra + mGorda;
+
+  if(mTotal > 0){
+    el('compMagra').textContent = com.massaMagra;
+    el('compGorda').textContent = com.massaGorda;
+    el('barMagra').style.width  = pct(mMagra, mTotal) + '%';
+    el('barGorda').style.width  = pct(mGorda, mTotal) + '%';
+
+    const gPct = num(com.percentualGordura);
+    let classLabel = '—';
+    if(dp.sexo === 'M' || dp.sexo === 'masculino'){
+      if(gPct < 6)       classLabel = 'Essencial';
+      else if(gPct < 14) classLabel = 'Atleta';
+      else if(gPct < 18) classLabel = 'Fitness';
+      else if(gPct < 25) classLabel = 'Aceitável';
+      else               classLabel = 'Obesidade';
+    } else {
+      if(gPct < 14)      classLabel = 'Essencial';
+      else if(gPct < 21) classLabel = 'Atleta';
+      else if(gPct < 25) classLabel = 'Fitness';
+      else if(gPct < 32) classLabel = 'Aceitável';
+      else               classLabel = 'Obesidade';
+    }
+    el('compClassLabel').textContent = gPct > 0 ? gPct.toFixed(1)+'% — '+classLabel : fmt(com.percentualGordura);
+    el('compIdeal').textContent = fmt(com.pesoIdeal);
+    show('sectionComposicao');
+  }
+
+  // ── 4. Metas ──────────────────────────────────────
+  const pesoHoje    = fmt(ant.peso);
+  const gordHoje    = fmt(com.percentualGordura).replace('%','').trim();
+  const mgordHoje   = fmt(com.massaGorda).replace('kg','').trim();
+  const mmagraHoje  = fmt(com.massaMagra).replace('kg','').trim();
+
+  const metasRows = [
+    { lbl:'Peso (kg)',       hoje:pesoHoje,   meta:fmt(mt.pesoMeta),       inv:false },
+    { lbl:'% Gordura',       hoje:gordHoje,   meta:fmt(mt.gorduraMeta),    inv:true  },
+    { lbl:'Massa Gorda (kg)',hoje:mgordHoje,  meta:fmt(mt.massaGordaMeta), inv:true  },
+    { lbl:'Massa Magra (kg)',hoje:mmagraHoje, meta:fmt(mt.massaMagraMeta), inv:false },
+  ];
+
+  const hasAnyMeta = metasRows.some(function(r){ return r.meta !== '—'; });
+  if(hasAnyMeta){
+    el('metasBody').innerHTML = metasRows.map(function(r){
+      return '<tr>'
+        +'<td style="font-size:12px;color:var(--gray)">'+r.lbl+'</td>'
+        +'<td class="col-hoje">'+r.hoje+'</td>'
+        +'<td class="col-meta">'+r.meta+'</td>'
+        +'<td>'+deltaHtml(r.hoje, r.meta, r.inv)+'</td>'
+        +'</tr>';
+    }).join('');
+    show('sectionMetas');
+  }
+
+  // ── 5. Hábitos ────────────────────────────────────
+  const habitos = mt.habitos || {};
+  const habitIds = Object.keys(HABITS_LABELS);
+  const activeHabits   = habitIds.filter(function(k){ return habitos[k]; });
+  const inactiveHabits = habitIds.filter(function(k){ return !habitos[k]; });
+
+  if(habitIds.length > 0){
+    // Ativos primeiro, depois inativos
+    const ordered = activeHabits.concat(inactiveHabits);
+    el('habitosList').innerHTML = ordered.map(function(id){
+      const on = !!habitos[id];
+      return '<div class="habito-item'+(on?' ativo':'')+'">'
+        +'<div class="habito-dot'+(on?' ativo':'')+'">'+( on ? '✓' : '' )+'</div>'
+        +'<span class="habito-label">'+(HABITS_LABELS[id]||id)+'</span>'
+        +'</div>';
+    }).join('');
+    show('sectionHabitos');
+  }
+
+  // ── 6. Metabolismo ────────────────────────────────
+  const tmbVal  = fmt(met.tmb);
+  const getVal  = fmt(met.get);
+  const metaVal = fmt(met.metaCalorica);
+
+  if(tmbVal !== '—' || getVal !== '—' || metaVal !== '—'){
+    el('metabTmb').textContent  = tmbVal  !== '—' ? tmbVal  : '—';
+    el('metabGet').textContent  = getVal  !== '—' ? getVal  : '—';
+    el('metabMeta').textContent = metaVal !== '—' ? metaVal : '—';
+
+    const macros = [
+      { lbl:'Proteína',     val: fmt(met.proteinaG),    unit:'g/dia' },
+      { lbl:'Carboidrato',  val: fmt(met.carboidratoG), unit:'g/dia' },
+      { lbl:'Gordura',      val: fmt(met.gorduraG),     unit:'g/dia' },
+    ];
+    const hasMacros = macros.some(function(m){ return m.val !== '—'; });
+    if(hasMacros){
+      el('macrosList').innerHTML = macros.map(function(m){
+        return '<div class="macro-row">'
+          +'<span class="macro-lbl">'+m.lbl+'</span>'
+          +'<span class="macro-val">'+(m.val !== '—' ? m.val+' '+m.unit : '—')+'</span>'
+          +'</div>';
+      }).join('');
+    }
+    show('sectionMetabol');
+  }
+
+  // ── 7. Diagnóstico Postural ───────────────────────
+  const vistas = [
+    { key:'frontal',         label:'Vista Frontal'      },
+    { key:'posterior',       label:'Vista Posterior'    },
+    { key:'lateralDireita',  label:'Lateral Direita'    },
+    { key:'lateralEsquerda', label:'Lateral Esquerda'   },
+  ];
+  const geral = pos.geral || {};
+  let posHtml = '';
+  let hasAnyPostural = false;
+
+  // Síndromes
+  const sindromes = geral.sindromes || [];
+  if(sindromes.length > 0){
+    posHtml += '<div style="margin-bottom:10px">'
+      + sindromes.map(function(s){ return '<span class="sindrome-tag">⚠ '+s+'</span>'; }).join('')
+      + '</div>';
+    hasAnyPostural = true;
+  }
+
+  // Escoliose
+  const escTipo = geral.escoliose || '';
+  if(escTipo && escTipo !== 'ok'){
+    posHtml += '<div style="margin-bottom:10px"><span class="escol-tag">📐 Escoliose: '+escTipo+'</span></div>';
+    hasAnyPostural = true;
+  }
+
+  // Por vista (accordion)
+  vistas.forEach(function(v, idx){
+    const vd = pos[v.key] || {};
+    const alts = vd.alteracoes || [];
+    const hasAlt = alts.length > 0;
+    if(hasAlt) hasAnyPostural = true;
+    const hdrClass = hasAlt ? 'alt' : 'ok';
+    const lblClass = hasAlt ? 'alt' : 'ok';
+    const countTxt = hasAlt ? alts.length+' alteração(ões)' : 'Sem alterações';
+    posHtml += '<div class="postural-vista">'
+      +'<div class="postural-vista-header '+hdrClass+'" onclick="toggleVista(\'pv'+idx+'\')">'
+      +'<span class="postural-vista-label '+lblClass+'">'+v.label+'</span>'
+      +'<span class="postural-vista-count">'+countTxt+' ▾</span>'
+      +'</div>'
+      +'<div class="postural-vista-body" id="pv'+idx+'">'
+      +(hasAlt
+        ? alts.map(function(a){ return '<span class="alt-badge">'+a+'</span>'; }).join('')
+        : '<span style="font-size:12px;color:var(--gray)">Nenhuma alteração identificada.</span>'
+      )
+      +'</div></div>';
+  });
+
+  // Top 5 exercícios
+  const top5 = geral.top5Exercicios || [];
+  if(top5.length > 0){
+    hasAnyPostural = true;
+    posHtml += '<div class="section-title" style="margin-top:16px">Top 5 Exercícios Prioritários</div>'
+      +'<ul class="top5-list">'
+      + top5.map(function(e, i){
+          return '<li class="top5-item">'
+            +'<span class="top5-num">'+(i+1)+'</span>'
+            +'<div><div class="top5-name">'+e[0]+'</div>'
+            +'<div class="top5-freq">Indicado em '+e[1]+' vista(s)</div></div>'
+            +'</li>';
+        }).join('')
+      +'</ul>';
+  } else {
+    // Músculos do geral se não tiver top5
+    const enc = geral.musculosEncurtados || [];
+    const alo = geral.musculosAlongados  || [];
+    if(enc.length > 0 || alo.length > 0){
+      hasAnyPostural = true;
+      posHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">'
+        +'<div><div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:4px">ENCURTADOS</div>'
+        +(enc.length ? enc.map(function(m){ return '<div style="font-size:11px;color:var(--gray);padding:2px 0">• '+m+'</div>'; }).join('') : '<div style="font-size:11px;color:var(--muted)">—</div>')
+        +'</div>'
+        +'<div><div style="font-size:10px;font-weight:700;color:#4caf50;margin-bottom:4px">ALONGADOS</div>'
+        +(alo.length ? alo.map(function(m){ return '<div style="font-size:11px;color:var(--gray);padding:2px 0">• '+m+'</div>'; }).join('') : '<div style="font-size:11px;color:var(--muted)">—</div>')
+        +'</div>'
+        +'</div>';
+    }
+  }
+
+  if(hasAnyPostural){
+    el('posturalBody').innerHTML = posHtml;
+    show('sectionPostural');
+  }
+
+  // ── 8. Mensagem do personal ───────────────────────
+  const msg = (mt.mensagem || '').trim();
+  if(msg){
+    el('mensagemText').textContent = msg;
+    show('sectionMensagem');
+  }
+
+  // Mostrar conteúdo
+  mostrarConteudo();
+
+  // Abrir primeira vista com alterações automaticamente
+  setTimeout(function(){
+    for(var i=0;i<4;i++){
+      var pvEl = el('pv'+i);
+      if(pvEl && pvEl.querySelector('.alt-badge')){
+        pvEl.classList.add('open'); break;
+      }
+    }
+  }, 200);
+}
+
+// ── Accordion vistas ──────────────────────────────
+function toggleVista(id){
+  const el2 = el(id);
+  if(el2) el2.classList.toggle('open');
+}
+
+// ===================== INIT =====================
+carregarAvaliacao();
+</script>
+</body>
+</html>
