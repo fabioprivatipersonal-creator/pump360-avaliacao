@@ -236,6 +236,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 
 /* LOADING */
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(201,168,76,0.3);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite}
+.btn-spinner,.btn-cloud-spinner{display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:4px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* TOAST */
@@ -555,8 +556,6 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
 .dash-brand{font-size:9px;color:rgba(201,168,76,0.5);letter-spacing:2px;text-transform:uppercase;margin-top:1px}
 .dash-close-btn{background:transparent;border:1px solid rgba(201,168,76,0.25);color:rgba(255,255,255,0.5);cursor:pointer;font-size:16px;padding:7px 11px;border-radius:8px;transition:0.2s ease;margin-left:16px;flex-shrink:0}
 .dash-close-btn:hover{border-color:#c9a84c;color:#fff}
-.dash-insta-btn{background:transparent;border:1px solid rgba(201,168,76,0.3);color:rgba(201,168,76,0.8);border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;transition:0.2s ease;letter-spacing:.5px;display:flex;align-items:center;gap:6px;white-space:nowrap}
-.dash-insta-btn:hover{background:rgba(201,168,76,0.1);border-color:#c9a84c;color:#c9a84c}
 /* Body */
 .dash-body{padding:28px;flex:1;overflow-y:auto;background:#0a0a0a}
 /* Cards grid */
@@ -614,27 +613,6 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
 .modal-dashboard .dash-section{opacity:0;transform:translateY(16px);transition:opacity 0.4s ease,transform 0.4s ease}
 .dash-section{opacity:1}
 .dash-section.card-visible{opacity:1;transform:translateY(0)}
-/* Instagram overlay */
-#igOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.96);z-index:3000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}
-#igOverlay.open{display:flex}
-#igCanvas{width:min(88vw,560px);height:min(88vw,560px);background:#0a0a0a;border:1px solid rgba(201,168,76,0.3);border-radius:16px;position:relative;overflow:hidden;display:flex;flex-direction:column;padding:28px;box-sizing:border-box;flex-shrink:0}
-.ig-header{text-align:center;margin-bottom:18px;flex-shrink:0}
-.ig-header-mp{font-size:26px;font-weight:900;color:#c9a84c;letter-spacing:-0.5px}
-.ig-header-sub{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:3px;text-transform:uppercase;margin-top:3px}
-.ig-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1}
-.ig-card{background:linear-gradient(135deg,#111 0%,#181808 100%);border:1px solid rgba(201,168,76,0.25);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;text-align:center;position:relative;overflow:hidden}
-.ig-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.3),transparent)}
-.ig-card-icon{font-size:18px;margin-bottom:4px;opacity:0.4}
-.ig-card-num{font-size:36px;font-weight:900;color:#c9a84c;text-shadow:0 0 18px rgba(201,168,76,0.4);line-height:1;margin-bottom:5px}
-.ig-card-label{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.4)}
-.ig-footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;flex-shrink:0}
-.ig-footer-left{color:rgba(201,168,76,0.8);font-size:11px;font-weight:700;letter-spacing:.5px}
-.ig-footer-right{color:rgba(255,255,255,0.25);font-size:9px;letter-spacing:.5px;text-align:right;line-height:1.7}
-.ig-actions{display:flex;gap:10px;margin-top:18px}
-.ig-action-btn{background:#c9a84c;color:#000;border:none;border-radius:8px;padding:10px 22px;font-size:12px;font-weight:800;cursor:pointer;transition:0.2s;letter-spacing:.5px}
-.ig-action-btn:hover{background:#e8c56a}
-.ig-action-btn.ig-secondary{background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5)}
-.ig-action-btn.ig-secondary:hover{border-color:#c9a84c;color:#c9a84c}
 /* Responsive */
 @media(max-width:768px){.dash-cards,.dash-cards-2{grid-template-columns:repeat(2,1fr)}.dash-card-num{font-size:34px}.dash-body{padding:16px}.dash-header{padding:14px 16px}}
 @media(max-width:440px){.dash-card-num{font-size:26px}.dash-card{padding:16px 14px}.dash-clock{font-size:17px}}
@@ -696,6 +674,44 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
 .cdm-chart-wrap{margin-bottom:16px;background:#0f0f0f;border:1px solid rgba(201,168,76,0.08);border-radius:10px;padding:14px}
 .cdm-chart-title{font-size:9px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;font-weight:700}
 @media(max-width:600px){.cdm-stat-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ===== MÓDULO DE AGENDAMENTO ===== */
+/* Prompt rápido */
+.ag-prompt-box{background:var(--bg2);border:1px solid rgba(201,168,76,0.4);border-radius:16px;padding:32px 28px;max-width:380px;width:100%;text-align:center}
+.ag-prompt-icon{font-size:40px;margin-bottom:12px}
+.ag-prompt-title{font-size:17px;font-weight:800;color:#fff;margin-bottom:6px}
+.ag-prompt-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:24px;min-height:20px}
+.ag-prompt-btns{display:flex;gap:10px;justify-content:center}
+/* Modal principal */
+.ag-modal-box{background:var(--bg2);border:1px solid rgba(201,168,76,0.3);border-radius:16px;padding:0;max-width:520px;width:100%;max-height:92vh;overflow-y:auto}
+.ag-modal-hdr{padding:24px 24px 16px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.ag-modal-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:var(--gold);margin-bottom:4px}
+.ag-modal-sub{font-size:20px;font-weight:700;color:#fff}
+.ag-modal-body{padding:20px 24px 24px}
+/* Período quick-select */
+.ag-periodo-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.ag-periodo-btn{flex:1;min-width:62px;padding:9px 4px;background:transparent;border:1px solid rgba(201,168,76,0.22);color:rgba(255,255,255,0.45);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:.2s;white-space:nowrap;font-family:inherit}
+.ag-periodo-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.07)}
+.ag-periodo-btn.ativo{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.12)}
+/* Formulário */
+.ag-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ag-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.ag-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.32)}
+.ag-input{background:var(--bg3);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;font-family:inherit;transition:border-color .2s;width:100%;box-sizing:border-box}
+.ag-input:focus{outline:none;border-color:rgba(201,168,76,0.5)}
+.ag-textarea{resize:vertical;min-height:62px}
+.ag-footer{display:flex;gap:10px;justify-content:flex-end;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)}
+/* Confirmação */
+.ag-confirm{background:#0a0a0a;border:1px solid rgba(201,168,76,0.45);border-radius:14px;padding:24px;animation:agPulse 2.2s ease-in-out infinite}
+@keyframes agPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 0 9px rgba(201,168,76,0.06)}}
+.ag-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(68,255,136,0.1);border:1px solid rgba(68,255,136,0.3);border-radius:20px;padding:4px 14px;font-size:10px;font-weight:700;color:#44ff88;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.ag-confirm-name{font-size:20px;font-weight:800;color:#fff;margin-bottom:4px}
+.ag-confirm-date{font-size:14px;color:var(--gold);font-weight:700;margin-bottom:20px}
+.ag-actions{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.ag-act-btn{display:flex;align-items:center;gap:10px;padding:13px 16px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;text-align:left;width:100%;font-family:inherit}
+.ag-act-gcal{background:#1a73e8;color:#fff}.ag-act-gcal:hover{background:#1557b0}
+.ag-act-email{background:#1e7e34;color:#fff}.ag-act-email:hover{background:#155724}
+.ag-act-whats{background:#128c7e;color:#fff}.ag-act-whats:hover{background:#075e54}
 </style>
 </head>
 <body>
@@ -728,8 +744,7 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
     <button class="btn-new" onclick="confirmNewCadastro()" title="Novo Cadastro">＋<span class="btn-new-text"> Novo Cadastro</span></button>
     <button class="btn btn-ghost btn-sm" onclick="openDashboard()">📊 Dashboard</button>
     <button class="btn btn-ghost btn-sm" onclick="openHistoryModal()">📋 Histórico</button>
-    <button class="btn btn-outline btn-sm" onclick="saveEvaluation()">💾 Salvar</button>
-    <button class="btn btn-cloud btn-sm" id="btnSalvarNuvem" onclick="salvarNoSupabase()">☁ Salvar na Nuvem</button>
+    <button class="btn btn-outline btn-sm" id="btnSalvarHeader" onclick="saveEvaluation(this)">💾 Salvar</button>
     <button class="btn btn-gold btn-sm" onclick="generatePDF()">📄 PDF</button>
   </div>
 </div>
@@ -1270,7 +1285,8 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
     <div class="nav-footer">
       <button class="btn btn-ghost btn-lg" onclick="goToTab(7)">← Anterior</button>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-outline btn-lg" onclick="saveEvaluation()">💾 Salvar Avaliação</button>
+        <button class="btn btn-outline btn-lg" id="btnSalvarTab" onclick="saveEvaluation(this)">💾 Salvar Avaliação</button>
+        <button class="btn btn-outline btn-lg" id="btnAgendarTab" onclick="abrirAgendamentoManual()" style="border-color:var(--gold);color:var(--gold)">📅 Agendar Avaliação</button>
         <button class="btn btn-gold btn-lg" onclick="generatePDF()">📄 Gerar PDF Completo</button>
       </div>
     </div>
@@ -1362,9 +1378,6 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
         <div class="dash-logo-sub">Dashboard do Personal</div>
         <div class="dash-logo-cref">Fábio Privati — CREF 128210-G/SP</div>
       </div>
-      <div class="dash-header-center">
-        <button class="dash-insta-btn" onclick="openIgMode()">📸 Instagram</button>
-      </div>
       <div style="display:flex;align-items:center;gap:0">
         <div class="dash-header-right">
           <div class="dash-clock" id="dashClock">--:--</div>
@@ -1375,25 +1388,6 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
       </div>
     </div>
     <div class="dash-body" id="dashBody"></div>
-  </div>
-</div>
-
-<!-- INSTAGRAM MODE OVERLAY -->
-<div id="igOverlay">
-  <div id="igCanvas">
-    <div class="ig-header">
-      <div class="ig-header-mp">MP360</div>
-      <div class="ig-header-sub">Método PUMP360 — Resultados Reais</div>
-    </div>
-    <div class="ig-card-grid" id="igCardGrid"></div>
-    <div class="ig-footer">
-      <div class="ig-footer-left">@personal_fp</div>
-      <div class="ig-footer-right">Método PUMP360<br>Ciência aplicada</div>
-    </div>
-  </div>
-  <div class="ig-actions">
-    <button class="ig-action-btn" onclick="igCapture()">📥 Baixar Imagem</button>
-    <button class="ig-action-btn ig-secondary" onclick="closeIgMode()">✕ Sair</button>
   </div>
 </div>
 
@@ -3777,15 +3771,23 @@ function collectData(){
   };
 }
 
-function saveEvaluation(){
+async function saveEvaluation(btnEl){
   if(avaliacaoAtual.jaSalvo){
     showToast('Esta avaliação já foi salva. Use "+ Novo Cadastro" para iniciar uma nova.','warning');
     return;
   }
   const data = collectData();
   if(!data.nome){ showToast('Preencha o nome do cliente.','error'); return; }
+
+  // ── Estado: Salvando... ──────────────────────────────────
+  const btnOrigLabel = btnEl ? btnEl.innerHTML : null;
+  if(btnEl){
+    btnEl.disabled = true;
+    btnEl.innerHTML = '<span class="btn-spinner"></span> Salvando…';
+  }
+
+  // ── 1. Salvar local ──────────────────────────────────────
   data.timestamp = new Date().toISOString();
-  // Vincular ao sistema de alunos
   const alunoId = avaliacaoAtual.alunoId || getOrCreateAluno(data);
   data.alunoId = alunoId;
   if(!avaliacaoAtual.alunoId) avaliacaoAtual.alunoId = alunoId;
@@ -3793,7 +3795,49 @@ function saveEvaluation(){
   history.unshift(data);
   localStorage.setItem('pump360_history', JSON.stringify(history.slice(0,50)));
   avaliacaoAtual.jaSalvo = true;
-  showToast('Avaliação salva com sucesso!','success');
+
+  // ── 2. Salvar na nuvem (não bloqueia se falhar) ──────────
+  let cloudOk = false;
+  try {
+    coletarTodosDados();
+    const { data: res, error } = await supabaseClient
+      .from('avaliacoes')
+      .insert([{ personal_id: 'fabio', dados: avaliacaoAtual }])
+      .select();
+    if(error) throw error;
+    avaliacaoAtual.supabaseToken = res[0].token;
+    avaliacaoAtual.supabaseId    = res[0].id;
+    saveDraft();
+    cloudOk = true;
+  } catch(err){
+    console.warn('PUMP360: falha ao salvar na nuvem (salvo local):', err);
+  }
+
+  // ── 3. Feedback unificado ────────────────────────────────
+  if(cloudOk){
+    if(btnEl){
+      btnEl.innerHTML = '✓ Salvo!';
+      btnEl.style.color       = 'var(--green)';
+      btnEl.style.borderColor = 'var(--green)';
+      setTimeout(()=>{ btnEl.disabled=false; btnEl.innerHTML=btnOrigLabel; btnEl.style.color=''; btnEl.style.borderColor=''; }, 2000);
+    }
+    showToast(avaliacaoAtual.agendamentoFeito ? '✓ Avaliação salva! Agendamento já realizado.' : '✓ Avaliação salva!','success');
+    // Gerar link do aluno automaticamente
+    if(avaliacaoAtual.supabaseToken) gerarLinkAluno(avaliacaoAtual.supabaseToken);
+  } else {
+    if(btnEl){
+      btnEl.innerHTML = '✓ Salvo localmente';
+      btnEl.style.color       = 'var(--orange)';
+      btnEl.style.borderColor = 'var(--orange)';
+      setTimeout(()=>{ btnEl.disabled=false; btnEl.innerHTML=btnOrigLabel; btnEl.style.color=''; btnEl.style.borderColor=''; }, 3000);
+    }
+    showToast('✓ Salvo localmente (sem conexão)','warning');
+  }
+
+  // Abrir prompt de agendamento apenas se ainda não foi agendado
+  if(!avaliacaoAtual.agendamentoFeito){
+    setTimeout(openAgendarPrompt, 900);
+  }
 }
 
 function saveDraft(){
@@ -5086,9 +5130,20 @@ function calcDashboardStats(){
     kgGorduraPerdidos: 0,
     mediaGordura: 0,
     avaliacoesMes: 0,
+    proximasAvaliacoes: 0,
     alertas: [],
     recentes: [],
   };
+
+  // Próximas avaliações agendadas (próximos 30 dias)
+  const in30 = new Date(now.getTime() + 30 * 86400000);
+  alunos.forEach(aluno => {
+    const dataAgendada = aluno.proximaAvaliacao?.data || aluno.proximaAvaliacaoData || '';
+    if(dataAgendada){
+      const d = new Date(dataAgendada);
+      if(!isNaN(d) && d >= now && d <= in30) s.proximasAvaliacoes++;
+    }
+  });
 
   // Avaliações do mês atual
   history.forEach(ev => {
@@ -5179,15 +5234,15 @@ function renderTrainerDashboard(){
   const clsMap = {red:'dash-alert-red', orange:'dash-alert-orange', green:'dash-alert-green'};
   const alertHtml = s.alertas.length
     ? s.alertas.map(a => {
-        let diasHtml, dateTxt;
         const daysClass = {red:'dash-alert-days-red', orange:'dash-alert-days-orange', green:'dash-alert-days-green'}[a.tipo];
+        let diasHtml;
         if(a.tipo === 'green'){
           const ret = 30 - a.dias;
           diasHtml = `<span class="${daysClass}">Retorno em ${ret} dia${ret!==1?'s':''}</span>`;
         } else {
           diasHtml = `<span class="${daysClass}">${a.dias} dias atrás</span>`;
         }
-        dateTxt = 'Última: ' + formatDate(a.ultimaAvaliacao) + ' · ' + diasHtml;
+        const dateTxt = 'Última: ' + formatDate(a.ultimaAvaliacao) + ' · ' + diasHtml;
         return `<div class="dash-alert-item ${clsMap[a.tipo]}">
           <span class="dash-alert-dot">${dotMap[a.tipo]}</span>
           <div class="dash-alert-info">
@@ -5213,54 +5268,30 @@ function renderTrainerDashboard(){
       </table></div>`
     : '<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:12px 0;text-align:center">Nenhuma avaliação salva ainda.</p>';
 
-  // Progress bar %
   const pct = s.totalAlunos ? Math.round((s.ativos / s.totalAlunos) * 100) : 0;
 
   body.innerHTML = `
-    <!-- Row 1 — KPIs principais -->
+    <!-- 4 KPI cards em linha única -->
     <div class="dash-cards" id="dashRow1">
       <div class="dash-card dash-card-gold" id="dCard1" onclick="dashCard1Click()" style="cursor:pointer" title="Ver alunos cadastrados">
         <div class="dash-card-icon">👤</div>
         <div class="dash-card-num" id="dNum1">0</div>
         <div class="dash-card-label">Alunos Cadastrados</div>
       </div>
-      <div class="dash-card dash-card-gold" id="dCard2" onclick="dashCard2Click()" style="cursor:pointer" title="Ver avaliações">
-        <div class="dash-card-icon">📋</div>
-        <div class="dash-card-num" id="dNum2">0</div>
-        <div class="dash-card-label">Avaliações Realizadas</div>
-      </div>
-      <div class="dash-card dash-card-green" id="dCard3" onclick="dashCard3Click()" style="cursor:pointer" title="Ver alunos ativos">
-        <div class="dash-card-icon">⚡</div>
-        <div class="dash-card-num" id="dNum3">0</div>
-        <div class="dash-card-label">Ativos este mês</div>
-      </div>
-      <div class="dash-card dash-card-gold" id="dCard4" onclick="dashCard4Click()" style="cursor:pointer" title="Ver resultados">
-        <div class="dash-card-icon">🔥</div>
-        <div class="dash-card-num" id="dNum4">0</div>
-        <div class="dash-card-label">kg de gordura eliminados</div>
-      </div>
-    </div>
-    <!-- Row 2 — KPIs secundários -->
-    <div class="dash-cards-2" id="dashRow2">
-      <div class="dash-card dash-card-orange" id="dCard5" onclick="dashCard5Click()" style="cursor:pointer" title="Ver alertas de retorno">
-        <div class="dash-card-icon">🔔</div>
-        <div class="dash-card-num" id="dNum5">0</div>
-        <div class="dash-card-label">Aguardando Retorno</div>
-      </div>
-      <div class="dash-card dash-card-red" id="dCard6" onclick="dashCard6Click()" style="cursor:pointer" title="Ver retornos vencidos">
+      <div class="dash-card dash-card-red" id="dCard2" onclick="dashCard2Click()" style="cursor:pointer" title="Ver retornos vencidos">
         <div class="dash-card-icon">⚠️</div>
-        <div class="dash-card-num" id="dNum6">0</div>
+        <div class="dash-card-num" id="dNum2">0</div>
         <div class="dash-card-label">Retorno Vencido</div>
       </div>
-      <div class="dash-card dash-card-gold" id="dCard7" onclick="dashCard7Click()" style="cursor:pointer" title="Ver análise da base">
-        <div class="dash-card-icon">💧</div>
-        <div class="dash-card-num" id="dNum7">0</div>
-        <div class="dash-card-label">Média % Gordura</div>
-      </div>
-      <div class="dash-card dash-card-gold" id="dCard8" onclick="dashCard8Click()" style="cursor:pointer" title="Ver avaliações do mês">
+      <div class="dash-card dash-card-gold" id="dCard3" onclick="dashCard3Click()" style="cursor:pointer" title="Ver próximas avaliações">
         <div class="dash-card-icon">📅</div>
-        <div class="dash-card-num" id="dNum8">0</div>
-        <div class="dash-card-label">Avaliações este mês</div>
+        <div class="dash-card-num" id="dNum3">0</div>
+        <div class="dash-card-label">Próximas Avaliações</div>
+      </div>
+      <div class="dash-card dash-card-gold" id="dCard4" onclick="dashCard4Click()" style="cursor:pointer" title="Ver avaliações do mês">
+        <div class="dash-card-icon">📋</div>
+        <div class="dash-card-num" id="dNum4">0</div>
+        <div class="dash-card-label">Avaliações este Mês</div>
       </div>
     </div>
     <!-- Progress bar -->
@@ -5284,37 +5315,25 @@ function renderTrainerDashboard(){
     </div>
   `;
 
-  // — Entrada sequencial dos cards —
-  const cardDelays = [80,160,240,320, 400,460,520,580];
-  for(let i=1;i<=8;i++){
-    _dashReveal(document.getElementById('dCard'+i), cardDelays[i-1]);
-  }
-
-  // — Barra de progresso —
-  _dashReveal(document.getElementById('dashProgress'), 640);
+  // Entrada sequencial dos 4 cards
+  [1,2,3,4].forEach((i, idx) => {
+    _dashReveal(document.getElementById('dCard'+i), 80 + idx*80);
+  });
+  _dashReveal(document.getElementById('dashProgress'), 400);
   setTimeout(()=>{
     const fill = document.getElementById('dashProgressFill');
     if(fill) fill.style.width = pct+'%';
-  }, 720);
+  }, 480);
+  _dashReveal(document.getElementById('dashSecAlerts'), 520);
+  _dashReveal(document.getElementById('dashSecRecent'), 640);
 
-  // — Seções —
-  _dashReveal(document.getElementById('dashSecAlerts'), 760);
-  _dashReveal(document.getElementById('dashSecRecent'), 880);
-
-  // — Count-up (duração 1.5s, começa após cards aparecerem) —
+  // Count-up
   setTimeout(()=>{
     _dashCountUp('dNum1', s.totalAlunos,       false, 1500);
-    _dashCountUp('dNum2', s.totalAvaliacoes,    false, 1500);
-    _dashCountUp('dNum3', s.ativos,             false, 1300);
-    _dashCountUp('dNum4', s.kgGorduraPerdidos,  s.kgGorduraPerdidos%1!==0, 1500);
-    _dashCountUp('dNum5', s.retorno30,          false, 1200);
-    _dashCountUp('dNum6', s.vencidos,           false, 1200);
-    _dashCountUp('dNum7', s.mediaGordura,       true,  1400);
-    _dashCountUp('dNum8', s.avaliacoesMes,      false, 1300);
+    _dashCountUp('dNum2', s.vencidos,           false, 1200);
+    _dashCountUp('dNum3', s.proximasAvaliacoes, false, 1200);
+    _dashCountUp('dNum4', s.avaliacoesMes,      false, 1300);
   }, 100);
-
-  // — Guardar stats para modo Instagram —
-  window._dashStats = s;
 }
 
 function dashStartEval(alunoId){
@@ -5322,55 +5341,6 @@ function dashStartEval(alunoId){
   novaAvaliacaoAluno(alunoId);
 }
 
-// ===== MODO INSTAGRAM =====
-function openIgMode(){
-  const s = window._dashStats || calcDashboardStats();
-  const grid = document.getElementById('igCardGrid');
-  if(!grid) return;
-  const cards = [
-    {icon:'👤', num: s.totalAlunos,      label:'Alunos Cadastrados'},
-    {icon:'📋', num: s.totalAvaliacoes,  label:'Avaliações Realizadas'},
-    {icon:'⚡', num: s.ativos,           label:'Ativos este mês'},
-    {icon:'🔥', num: s.kgGorduraPerdidos+(s.kgGorduraPerdidos%1!==0?'':'.0'), label:'kg gordura eliminados'},
-  ];
-  grid.innerHTML = cards.map(c=>`
-    <div class="ig-card">
-      <div class="ig-card-icon">${c.icon}</div>
-      <div class="ig-card-num">${typeof c.num==='number'?c.num:c.num}</div>
-      <div class="ig-card-label">${c.label}</div>
-    </div>
-  `).join('');
-  document.getElementById('igOverlay').classList.add('open');
-}
-
-function closeIgMode(){
-  document.getElementById('igOverlay').classList.remove('open');
-}
-
-function igCapture(){
-  // html2canvas não está carregado por padrão — gerar via Canvas API nativa
-  const canvas = document.getElementById('igCanvas');
-  if(typeof html2canvas !== 'undefined'){
-    html2canvas(canvas, {
-      backgroundColor:'#0a0a0a',
-      scale:2,
-      width:1080, height:1080,
-      useCORS:true,
-    }).then(c=>{
-      const a = document.createElement('a');
-      a.download = 'pump360-dashboard.png';
-      a.href = c.toDataURL('image/png');
-      a.click();
-    });
-  } else {
-    // Fallback: tentar carregar html2canvas dinamicamente
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    script.onload = () => igCapture();
-    script.onerror = () => showToast('html2canvas não disponível. Tire um print da tela.','warning');
-    document.head.appendChild(script);
-  }
-}
 
 // ===================== CARD DETAIL MODAL =====================
 function openCardModal(title, toolbarHtml, bodyHtml){
@@ -5534,122 +5504,8 @@ function cdmVerPerfil(alunoId){
   openCardModal('👤 Perfil — '+aluno.nome,'',body);
 }
 
-// ── CARD 2 — Avaliações realizadas ──
-function dashCard2Click(){ _renderCard2('','',''); }
-function _renderCard2(q,filtMes,filtObj){
-  const history=JSON.parse(localStorage.getItem('pump360_history')||'[]');
-  let evals=history.map((ev,i)=>({ev,i}));
-  if(q) evals=evals.filter(({ev})=>(ev.nome||'').toLowerCase().includes(q.toLowerCase()));
-  if(filtMes){
-    const [yr,mn]=filtMes.split('-').map(Number);
-    evals=evals.filter(({ev})=>{const d=new Date(ev.dataAvaliacao||ev.timestamp);return d.getFullYear()===yr&&d.getMonth()+1===mn;});
-  }
-  if(filtObj) evals=evals.filter(({ev})=>ev.objetivo===filtObj);
-  const mesSet=new Set();
-  history.forEach(ev=>{const d=new Date(ev.dataAvaliacao||ev.timestamp);if(!isNaN(d))mesSet.add(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));});
-  const mesOpts=['<option value="">Todos os meses</option>',...[...mesSet].sort().reverse().map(m=>`<option value="${m}" ${filtMes===m?'selected':''}>${m}</option>`)].join('');
-  const objSet=new Set(history.map(e=>e.objetivo).filter(Boolean));
-  const objOpts=['<option value="">Todos objetivos</option>',...[...objSet].map(o=>`<option value="${o}" ${filtObj===o?'selected':''}>${o}</option>`)].join('');
-  const body=evals.length?evals.map(({ev,i})=>`
-    <div class="cdm-eval-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-        <div style="font-size:14px;font-weight:700;color:#c9a84c">${ev.nome||'Sem nome'}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.3)">${formatDate(ev.dataAvaliacao||ev.timestamp)}</div>
-      </div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.38);line-height:1.8;margin-bottom:8px">
-        ${ev.antrop?.peso?'Peso: <b>'+ev.antrop.peso+' kg</b> · ':''}${ev.dobras?.percGordura&&ev.dobras.percGordura!=='—'?'%G: <b>'+ev.dobras.percGordura+'%</b> · ':''}${ev.dobras?.massaMagra&&ev.dobras.massaMagra!=='—'?'M.Magra: <b>'+ev.dobras.massaMagra+' kg</b>':''}
-        ${ev.objetivo?'<br>Objetivo: '+ev.objetivo:''}
-      </div>
-      <div class="cdm-student-actions">
-        <button class="cdm-btn" onclick="cdmAbrirEval(${i})">Abrir</button>
-        <button class="cdm-btn" onclick="cdmEvalPDF(${i})">PDF</button>
-        <button class="cdm-btn cdm-btn-danger" onclick="cdmDeleteEval(${i},${JSON.stringify((ev.nome||'')+'—'+formatDate(ev.dataAvaliacao||ev.timestamp))})">Excluir</button>
-      </div>
-    </div>`).join(''):'<div class="cdm-empty">Nenhuma avaliação encontrada.</div>';
-  const toolbar=`
-    <input class="cdm-search" type="text" id="cdmS2" placeholder="Buscar por nome..." value="${q}" oninput="_renderCard2(this.value,document.getElementById('cdmMes2').value,document.getElementById('cdmObj2').value)">
-    <select class="cdm-filter" id="cdmMes2" onchange="_renderCard2(document.getElementById('cdmS2').value,this.value,document.getElementById('cdmObj2').value)">${mesOpts}</select>
-    <select class="cdm-filter" id="cdmObj2" onchange="_renderCard2(document.getElementById('cdmS2').value,document.getElementById('cdmMes2').value,this.value)">${objOpts}</select>`;
-  openCardModal('📋 Avaliações Realizadas',toolbar,body);
-}
-
-// ── CARD 3 — Alunos ativos ──
-function dashCard3Click(){
-  const alunos=getAlunos(),history=JSON.parse(localStorage.getItem('pump360_history')||'[]'),now=new Date();
-  const ativos=alunos.filter(a=>{const d=new Date(a.ultimaAvaliacao);return!isNaN(d)&&Math.floor((now-d)/86400000)<30;});
-  const body=ativos.length?ativos.map(a=>{
-    const dias=Math.floor((now-new Date(a.ultimaAvaliacao))/86400000);
-    const link=history.filter(ev=>ev.alunoId===a.id)[0]?.linkPublico||'';
-    return `<div class="cdm-student-card">
-      <div class="cdm-student-name"><span class="active-dot"></span>${a.nome}</div>
-      <div class="cdm-student-meta">Última aval.: ${formatDate(a.ultimaAvaliacao)} · <span style="color:#44ff88;font-weight:700">Ativo há ${dias} dia${dias!==1?'s':''}</span></div>
-      <div class="cdm-student-actions">
-        <button class="cdm-btn" onclick="cdmVerPerfil('${a.id}')">Ver Perfil</button>
-        <button class="cdm-btn" onclick="cdmNovaAval('${a.id}')">Nova Avaliação</button>
-        ${link?`<button class="cdm-btn cdm-btn-green" onclick="cdmEnviarLink('${(a.nome||'').replace(/'/g,'')}','${link}')">Enviar Link</button>`:''}
-      </div>
-    </div>`;
-  }).join(''):'<div class="cdm-empty">Nenhum aluno ativo no momento.</div>';
-  openCardModal('⚡ Alunos Ativos','',body);
-}
-
-// ── CARD 4 — Kg gordura eliminados ──
-function dashCard4Click(){
-  const alunos=getAlunos(),history=JSON.parse(localStorage.getItem('pump360_history')||'[]');
-  let totalKg=0;
-  const rows=alunos.map(a=>{
-    const evals=history.filter(ev=>ev.alunoId===a.id).sort((a,b)=>new Date(a.dataAvaliacao||a.timestamp)-new Date(b.dataAvaliacao||b.timestamp));
-    if(evals.length<2) return null;
-    const first=evals[0],last=evals[evals.length-1];
-    const gFP=parseFloat(first.dobras?.percGordura||''),gLP=parseFloat(last.dobras?.percGordura||'');
-    const gFK=parseFloat(first.dobras?.massaGorda||''),gLK=parseFloat(last.dobras?.massaGorda||'');
-    if(isNaN(gFP)||isNaN(gLP)) return null;
-    const dP=(gLP-gFP),dK=(!isNaN(gFK)&&!isNaN(gLK))?gLK-gFK:null;
-    if(dK!==null&&dK<0) totalKg+=Math.abs(dK);
-    return {nome:a.nome,gFP,gLP,dP,gFK,gLK,dK};
-  }).filter(Boolean);
-  const tableHtml=rows.length?`<div style="overflow-x:auto"><table class="cdm-table">
-    <thead><tr><th>Aluno</th><th>1ª Aval.</th><th>Atual</th><th>Δ %G</th><th>Δ kg</th></tr></thead>
-    <tbody>${rows.map(r=>{
-      const dp=r.dP.toFixed(1),dk=r.dK!==null?r.dK.toFixed(1):'—';
-      const cp=r.dP<0?'#44ff88':r.dP>0?'#ff4444':'rgba(255,255,255,0.4)';
-      const ck=r.dK!==null?(r.dK<0?'#44ff88':r.dK>0?'#ff4444':'rgba(255,255,255,0.4)'):'rgba(255,255,255,0.4)';
-      return `<tr>
-        <td style="font-weight:700">${r.nome}</td>
-        <td>${r.gFP}%${!isNaN(r.gFK)?' ('+r.gFK+'kg)':''}</td>
-        <td>${r.gLP}%${!isNaN(r.gLK)?' ('+r.gLK+'kg)':''}</td>
-        <td style="color:${cp};font-weight:700">${r.dP>0?'+':''}${dp}%</td>
-        <td style="color:${ck};font-weight:700">${r.dK!==null?(r.dK>0?'+':''):''}${dk}${r.dK!==null?' kg':''}</td>
-      </tr>`;
-    }).join('')}</tbody>
-  </table></div>
-  <div style="margin-top:16px;padding:14px;background:#111;border-radius:10px;border:1px solid rgba(201,168,76,0.15);text-align:center">
-    <div style="font-size:9px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px">Total eliminado pela base</div>
-    <div style="font-size:32px;font-weight:900;color:#c9a84c;text-shadow:0 0 20px rgba(201,168,76,0.35)">${totalKg.toFixed(1)}<span style="font-size:16px;font-weight:600;margin-left:4px">kg de gordura</span></div>
-  </div>`:'<div class="cdm-empty">Nenhum aluno com 2 ou mais avaliações ainda.</div>';
-  openCardModal('🔥 Resultados Gerais','',tableHtml);
-}
-
-// ── CARD 5 — Aguardando retorno (30-60 dias) ──
-function dashCard5Click(){
-  const alunos=getAlunos(),now=new Date();
-  const lista=alunos.filter(a=>{const d=new Date(a.ultimaAvaliacao),dias=Math.floor((now-d)/86400000);return!isNaN(d)&&dias>=30&&dias<=60;})
-    .sort((a,b)=>new Date(a.ultimaAvaliacao)-new Date(b.ultimaAvaliacao));
-  const body=lista.length?lista.map(a=>{
-    const dias=Math.floor((now-new Date(a.ultimaAvaliacao))/86400000);
-    return `<div class="cdm-student-card" style="border-left:3px solid #ff6b35">
-      <div class="cdm-student-name">${a.nome}</div>
-      <div class="cdm-student-meta">Última aval.: ${formatDate(a.ultimaAvaliacao)} · <span style="color:#ff6b35;font-weight:700">${dias} dias sem avaliação</span></div>
-      <div class="cdm-student-actions">
-        <button class="cdm-btn" onclick="cdmNovaAval('${a.id}')">Nova Avaliação</button>
-      </div>
-    </div>`;
-  }).join(''):'<div class="cdm-empty">Nenhum aluno aguardando retorno.</div>';
-  openCardModal('🔔 Aguardando Retorno','',body);
-}
-
-// ── CARD 6 — Retorno vencido (>60 dias) ──
-function dashCard6Click(){
+// ── CARD 2 — Retorno Vencido (>60 dias) ──
+function dashCard2Click(){
   const alunos=getAlunos(),now=new Date();
   const lista=alunos.filter(a=>{const d=new Date(a.ultimaAvaliacao);return!isNaN(d)&&Math.floor((now-d)/86400000)>60;})
     .sort((a,b)=>new Date(a.ultimaAvaliacao)-new Date(b.ultimaAvaliacao));
@@ -5666,49 +5522,39 @@ function dashCard6Click(){
         <button class="cdm-btn" onclick="cdmNovaAval('${a.id}')">Nova Avaliação</button>
       </div>
     </div>`;
-  }).join(''):'<div class="cdm-empty">Nenhum aluno com retorno vencido.</div>';
+  }).join(''):'<div class="cdm-empty">Nenhum aluno com retorno vencido. ✅</div>';
   openCardModal('⚠️ Retorno Vencido','',body);
 }
 
-// ── CARD 7 — Análise da base ──
-function dashCard7Click(){
-  const alunos=getAlunos(),history=JSON.parse(localStorage.getItem('pump360_history')||'[]');
-  const gords=alunos.map(a=>{
-    const evals=history.filter(ev=>ev.alunoId===a.id);
-    if(!evals.length) return null;
-    const g=parseFloat(evals[0].dobras?.percGordura||evals[0].composicao?.percentualGordura||'');
-    return(!isNaN(g)&&g>0)?{nome:a.nome,g}:null;
-  }).filter(Boolean);
-  if(!gords.length){openCardModal('💧 Análise da Base','','<div class="cdm-empty">Sem dados de composição corporal ainda.</div>');return;}
-  const media=gords.reduce((s,v)=>s+v.g,0)/gords.length;
-  const sorted=[...gords].sort((a,b)=>a.g-b.g);
-  const menor=sorted[0],maior=sorted[sorted.length-1];
-  const ab20=gords.filter(v=>v.g<20).length,ac30=gords.filter(v=>v.g>30).length;
-  const body=`
-    <div class="cdm-stat-grid">
-      <div class="cdm-stat-card"><div class="cdm-stat-num">${media.toFixed(1)}%</div><div class="cdm-stat-label">Média da base</div></div>
-      <div class="cdm-stat-card"><div class="cdm-stat-num" style="color:#44ff88">${menor.g.toFixed(1)}%</div><div class="cdm-stat-label">Menor %G</div><div class="cdm-stat-sub">${menor.nome}</div></div>
-      <div class="cdm-stat-card"><div class="cdm-stat-num" style="color:#ff4444">${maior.g.toFixed(1)}%</div><div class="cdm-stat-label">Maior %G</div><div class="cdm-stat-sub">${maior.nome}</div></div>
-    </div>
-    <div class="cdm-stat-grid">
-      <div class="cdm-stat-card"><div class="cdm-stat-num" style="color:#44ff88">${ab20}</div><div class="cdm-stat-label">Abaixo de 20%</div></div>
-      <div class="cdm-stat-card"><div class="cdm-stat-num" style="color:#ff4444">${ac30}</div><div class="cdm-stat-label">Acima de 30%</div></div>
-      <div class="cdm-stat-card"><div class="cdm-stat-num">${gords.length}</div><div class="cdm-stat-label">Com dados de %G</div></div>
-    </div>
-    <div class="dash-section-title" style="margin-top:4px;margin-bottom:12px">Ranking de % Gordura</div>
+// ── CARD 3 — Próximas Avaliações (próximos 30 dias) ──
+function dashCard3Click(){
+  const alunos=getAlunos(),now=new Date();
+  const in30=new Date(now.getTime()+30*86400000);
+  const lista=alunos.map(a=>{
+    const dataAgendada=a.proximaAvaliacao?.data||a.proximaAvaliacaoData||'';
+    if(!dataAgendada) return null;
+    const d=new Date(dataAgendada);
+    if(isNaN(d)||d<now||d>in30) return null;
+    const dias=Math.ceil((d-now)/86400000);
+    return {aluno:a, data:d, dataStr:dataAgendada, dias};
+  }).filter(Boolean).sort((a,b)=>a.data-b.data);
+
+  const body=lista.length?`
     <div style="overflow-x:auto"><table class="cdm-table">
-      <thead><tr><th>#</th><th>Aluno</th><th>% Gordura</th></tr></thead>
-      <tbody>${sorted.map((v,i)=>`<tr>
-        <td style="color:rgba(255,255,255,0.25)">${i+1}</td>
-        <td style="font-weight:600">${v.nome}</td>
-        <td style="color:${v.g<20?'#44ff88':v.g>30?'#ff4444':'#c9a84c'};font-weight:700">${v.g.toFixed(1)}%</td>
+      <thead><tr><th>Aluno</th><th>Data Agendada</th><th>Dias Restantes</th><th></th></tr></thead>
+      <tbody>${lista.map(({aluno,dataStr,dias})=>`<tr>
+        <td style="font-weight:700;color:#c9a84c">${aluno.nome}</td>
+        <td>${formatDate(dataStr)}</td>
+        <td style="color:${dias<=3?'#ff4444':dias<=7?'#ff6b35':'#44ff88'};font-weight:700">em ${dias} dia${dias!==1?'s':''}</td>
+        <td><button class="cdm-btn" onclick="cdmNovaAval('${aluno.id}')">Iniciar Avaliação</button></td>
       </tr>`).join('')}</tbody>
-    </table></div>`;
-  openCardModal('💧 Análise da Base','',body);
+    </table></div>`
+    :'<div class="cdm-empty">Nenhuma avaliação agendada nos próximos 30 dias.</div>';
+  openCardModal('📅 Próximas Avaliações','',body);
 }
 
-// ── CARD 8 — Avaliações do mês ──
-function dashCard8Click(){
+// ── CARD 4 — Avaliações este mês ──
+function dashCard4Click(){
   const now=new Date(),yr=now.getFullYear(),mn=now.getMonth();
   const history=JSON.parse(localStorage.getItem('pump360_history')||'[]');
   const doMes=history.map((ev,i)=>({ev,i})).filter(({ev})=>{const d=new Date(ev.dataAvaliacao||ev.timestamp);return d.getFullYear()===yr&&d.getMonth()===mn;});
@@ -5723,8 +5569,8 @@ function dashCard8Click(){
       <div class="cdm-student-actions">
         <button class="cdm-btn" onclick="cdmAbrirEval(${i})">Abrir</button>
       </div>
-    </div>`).join(''):'<div class="cdm-empty">Nenhuma avaliação este mês.</div>';
-  openCardModal('📅 Avaliações do Mês','',calHtml+listHtml);
+    </div>`).join(''):'<div class="cdm-empty">Nenhuma avaliação realizada este mês.</div>';
+  openCardModal('📋 Avaliações do Mês','',calHtml+listHtml);
 }
 
 // ===================== TOAST =====================
@@ -5737,11 +5583,300 @@ function showToast(msg, type=''){
   setTimeout(()=>el.classList.remove('show'),3000);
 }
 
+// ===================== AGENDAMENTO =====================
+let _agendarAlunoId  = null;
+let _agendarDados    = null;
+let _agendarIsEdicao = false;
+
+// Chamado automaticamente 900ms após salvar avaliação
+function openAgendarPrompt(){
+  const alunoId = avaliacaoAtual.alunoId;
+  if(!alunoId || avaliacaoAtual.agendamentoFeito) return;
+  _agendarAlunoId = alunoId;
+  const aluno = getAlunos().find(a => a.id === alunoId);
+  document.getElementById('agendarPromptNome').textContent = aluno?.nome || avaliacaoAtual.nome || '';
+  document.getElementById('agendarPromptModal').classList.add('open');
+}
+
+function fecharAgendarPrompt(){
+  document.getElementById('agendarPromptModal').classList.remove('open');
+}
+
+// Chamado pelo botão manual "📅 Agendar Avaliação" na barra de resultados
+function abrirAgendamentoManual(){
+  const alunoId = avaliacaoAtual.alunoId;
+  if(!alunoId){
+    showToast('Salve a avaliação primeiro para agendar.','warning');
+    return;
+  }
+  _agendarAlunoId = alunoId;
+  _atualizarBtnAgendar();
+  _abrirFormAgendamento();
+}
+
+// Chamado pelo botão "Agendar Agora" do prompt automático
+function abrirFormAgendamento(){
+  fecharAgendarPrompt();
+  _abrirFormAgendamento();
+}
+
+// Núcleo: abre o formulário no modo novo ou edição
+function _abrirFormAgendamento(){
+  if(!_agendarAlunoId) return;
+  const aluno     = getAlunos().find(a => a.id === _agendarAlunoId);
+  const existente = aluno?.proximaAvaliacao;
+  _agendarIsEdicao = !!existente;
+
+  // Header dinâmico
+  const titleEl = document.getElementById('agModalTitle');
+  const subEl   = document.getElementById('agModalSub');
+  if(_agendarIsEdicao){
+    if(titleEl) titleEl.textContent = 'Editar Agendamento';
+    if(subEl)   subEl.textContent   = 'Agendado para ' + formatDate(existente.data) + ' às ' + existente.horario;
+  } else {
+    if(titleEl) titleEl.textContent = 'Agendar Próxima Avaliação';
+    if(subEl)   subEl.textContent   = aluno?.nome || '';
+  }
+
+  // Reset botões de período
+  document.querySelectorAll('.ag-periodo-btn').forEach(b => b.classList.remove('ativo'));
+  document.querySelector('.ag-periodo-btn')?.classList.add('ativo');
+
+  if(_agendarIsEdicao){
+    // Preencher com dados existentes
+    document.getElementById('agendarData').value     = existente.data      || '';
+    document.getElementById('agendarHorario').value  = existente.horario   || '09:00';
+    document.getElementById('agendarEmail').value    = existente.email     || aluno?.email    || '';
+    document.getElementById('agendarTelefone').value = existente.telefone  || aluno?.telefone || '';
+    document.getElementById('agendarObs').value      = existente.observacoes || '';
+  } else {
+    // Defaults para novo agendamento
+    selecionarPeriodo(30, document.querySelector('.ag-periodo-btn'));
+    document.getElementById('agendarHorario').value  = '09:00';
+    document.getElementById('agendarEmail').value    = aluno?.email    || '';
+    document.getElementById('agendarTelefone').value = aluno?.telefone || '';
+    document.getElementById('agendarObs').value      = '';
+  }
+
+  document.getElementById('agendarFormWrap').style.display    = '';
+  document.getElementById('agendarConfirmWrap').style.display = 'none';
+  document.getElementById('agendarModal').classList.add('open');
+}
+
+function fecharAgendarModal(){
+  document.getElementById('agendarModal').classList.remove('open');
+}
+
+function selecionarPeriodo(dias, btnEl){
+  const d = new Date();
+  d.setDate(d.getDate() + dias);
+  document.getElementById('agendarData').value = d.toISOString().split('T')[0];
+  document.querySelectorAll('.ag-periodo-btn').forEach(b => b.classList.remove('ativo'));
+  if(btnEl) btnEl.classList.add('ativo');
+}
+
+function salvarAgendamento(){
+  const data     = document.getElementById('agendarData').value;
+  const horario  = document.getElementById('agendarHorario').value;
+  const email    = document.getElementById('agendarEmail').value.trim();
+  const telefone = document.getElementById('agendarTelefone').value.trim();
+  const obs      = document.getElementById('agendarObs').value.trim();
+
+  if(!data)   { showToast('Selecione uma data para o agendamento.','error'); return; }
+  if(!horario){ showToast('Informe o horário da avaliação.','error'); return; }
+
+  const alunos    = getAlunos();
+  const idx       = alunos.findIndex(a => a.id === _agendarAlunoId);
+  const nomeAluno = idx !== -1 ? alunos[idx].nome : '';
+  const agora     = new Date().toISOString();
+
+  if(idx !== -1){
+    const jaExistia = !!alunos[idx].proximaAvaliacao;
+    alunos[idx].proximaAvaliacao = {
+      data, horario, email, telefone,
+      observacoes: obs,
+      criadoEm:     jaExistia ? (alunos[idx].proximaAvaliacao.criadoEm || agora) : agora,
+      atualizadoEm: agora
+    };
+    if(telefone && !alunos[idx].telefone) alunos[idx].telefone = telefone;
+    if(email    && !alunos[idx].email)    alunos[idx].email    = email;
+    saveAlunos(alunos);
+  }
+
+  // Persistir na avaliação atual
+  avaliacaoAtual.agendamentoFeito = true;
+  avaliacaoAtual.agendamento      = { data, horario, email, telefone, observacoes: obs };
+
+  // Atualizar botão
+  _atualizarBtnAgendar();
+
+  _agendarDados = { data, horario, email, telefone, observacoes: obs, nomeAluno, isEdicao: _agendarIsEdicao };
+  _mostrarConfirmacao(_agendarDados);
+}
+
+// Atualiza texto do botão manual conforme estado atual
+function _atualizarBtnAgendar(){
+  const btn = document.getElementById('btnAgendarTab');
+  if(!btn) return;
+  const alunoId = avaliacaoAtual.alunoId || _agendarAlunoId;
+  if(!alunoId){ btn.innerHTML = '📅 Agendar Avaliação'; return; }
+  const aluno = getAlunos().find(a => a.id === alunoId);
+  btn.innerHTML = aluno?.proximaAvaliacao ? '✏️ Editar Agendamento' : '📅 Agendar Avaliação';
+}
+
+function _mostrarConfirmacao(dados){
+  document.getElementById('agendarFormWrap').style.display  = 'none';
+  document.getElementById('agendarConfirmNome').textContent = dados.nomeAluno;
+  document.getElementById('agendarConfirmDate').textContent = formatDate(dados.data) + ' às ' + dados.horario;
+
+  const badge = document.getElementById('agConfirmBadge');
+  if(badge) badge.textContent = dados.isEdicao ? '✓ Agendamento Atualizado' : '✓ Agendamento Salvo';
+
+  const hasTel   = dados.telefone && dados.telefone.replace(/\D/g,'').length >= 8;
+  const hasEmail = dados.email && dados.email.includes('@');
+
+  document.getElementById('agendarActions').innerHTML =
+    `<button class="ag-act-btn ag-act-gcal"  onclick="_agendarGcal()">📅 Adicionar ao meu Google Calendar</button>` +
+    (hasEmail ? `<button class="ag-act-btn ag-act-email" onclick="_agendarEmail()">📧 Enviar Email para o Aluno</button>` : '') +
+    (hasTel   ? `<button class="ag-act-btn ag-act-whats" onclick="_agendarWhats()">📱 Enviar WhatsApp para o Aluno</button>` : '');
+
+  document.getElementById('agendarConfirmWrap').style.display = '';
+  showToast(dados.isEdicao ? '✓ Agendamento atualizado com sucesso!' : '✓ Agendamento salvo!','success');
+}
+
+function _agendarGcal(){
+  const d = _agendarDados;
+  if(!d) return;
+  const titulo   = encodeURIComponent('Avaliacao Fisica — ' + d.nomeAluno);
+  const detalhes = encodeURIComponent(
+    'Avaliacao fisica — Metodo PUMP360\nAluno: ' + d.nomeAluno +
+    (d.observacoes ? '\nObs: ' + d.observacoes : '')
+  );
+  const ds     = d.data.replace(/-/g,'');
+  const hs     = d.horario.replace(':','');
+  const inicio = ds + 'T' + hs + '00';
+  const hFim   = String(parseInt(d.horario.split(':')[0]) + 1).padStart(2,'0');
+  const fim    = ds + 'T' + hFim + d.horario.split(':')[1] + '00';
+  window.open(
+    'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+    '&text=' + titulo + '&dates=' + inicio + '/' + fim +
+    '&details=' + detalhes +
+    '&location=' + encodeURIComponent('Studio Fabio Privati'),
+    '_blank'
+  );
+}
+
+function _agendarEmail(){
+  const d = _agendarDados;
+  if(!d || !d.email) return;
+  const assunto = encodeURIComponent(
+    d.isEdicao ? 'Atualizacao do seu agendamento — Metodo PUMP360'
+               : 'Sua avaliacao fisica foi agendada — Metodo PUMP360'
+  );
+  const corpo = encodeURIComponent(
+    'Ola ' + d.nomeAluno + '!\n\n' +
+    (d.isEdicao ? 'Seu agendamento foi atualizado:\n' : 'Sua proxima avaliacao fisica esta agendada:\n') +
+    'Data: ' + formatDate(d.data) + '\nHorario: ' + d.horario + '\n\n' +
+    (d.observacoes ? 'Observacoes: ' + d.observacoes + '\n\n' : '') +
+    'Qualquer duvida entre em contato!\n\n' +
+    'Fabio Privati\nCREF 128210-G/SP\nMetodo PUMP360\nInstagram: @personal_fp'
+  );
+  window.open('mailto:' + d.email + '?subject=' + assunto + '&body=' + corpo);
+}
+
+function _agendarWhats(){
+  const d = _agendarDados;
+  if(!d || !d.telefone) return;
+  const tel = d.telefone.replace(/\D/g,'');
+  const msg = encodeURIComponent(
+    'Ola ' + d.nomeAluno + '! 👋\n\n' +
+    (d.isEdicao ? 'Seu agendamento foi atualizado para:\n' : 'Sua proxima avaliacao esta agendada para:\n') +
+    '📅 Data: ' + formatDate(d.data) + '\n⏰ Horario: ' + d.horario + '\n\n' +
+    (d.observacoes ? '📝 ' + d.observacoes + '\n\n' : '') +
+    'Qualquer duvida me chame!\n\n' +
+    '💪 Fabio Privati\nCREF 128210-G/SP | Metodo PUMP360'
+  );
+  window.open('https://wa.me/55' + tel + '?text=' + msg);
+}
+
 // ===================== AUTOSAVE =====================
 document.querySelectorAll('input,select,textarea').forEach(el=>{
   el.addEventListener('change',saveDraft);
 });
 </script>
+
+<!-- ===== PROMPT: AGENDAR PRÓXIMA AVALIAÇÃO ===== -->
+<div class="modal" id="agendarPromptModal">
+  <div class="ag-prompt-box">
+    <div class="ag-prompt-icon">📅</div>
+    <div class="ag-prompt-title">Agendar próxima avaliação?</div>
+    <div class="ag-prompt-sub" id="agendarPromptNome"></div>
+    <div class="ag-prompt-btns">
+      <button class="btn btn-gold" onclick="abrirFormAgendamento()">Agendar Agora</button>
+      <button class="btn btn-ghost" onclick="fecharAgendarPrompt()">Depois</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: AGENDAMENTO COMPLETO ===== -->
+<div class="modal" id="agendarModal">
+  <div class="ag-modal-box">
+    <div class="ag-modal-hdr">
+      <div class="ag-modal-title" id="agModalTitle">Agendar Próxima Avaliação</div>
+      <div class="ag-modal-sub"   id="agModalSub">—</div>
+    </div>
+
+    <!-- FORMULÁRIO -->
+    <div class="ag-modal-body" id="agendarFormWrap">
+      <div class="ag-label" style="margin-bottom:8px">Período sugerido</div>
+      <div class="ag-periodo-row">
+        <button class="ag-periodo-btn ativo" onclick="selecionarPeriodo(30,this)">30 dias</button>
+        <button class="ag-periodo-btn"       onclick="selecionarPeriodo(45,this)">45 dias</button>
+        <button class="ag-periodo-btn"       onclick="selecionarPeriodo(60,this)">60 dias</button>
+        <button class="ag-periodo-btn"       onclick="selecionarPeriodo(90,this)">90 dias</button>
+      </div>
+      <div class="ag-row2">
+        <div class="ag-group">
+          <label class="ag-label">Data</label>
+          <input class="ag-input" type="date" id="agendarData">
+        </div>
+        <div class="ag-group">
+          <label class="ag-label">Horário</label>
+          <input class="ag-input" type="time" id="agendarHorario">
+        </div>
+      </div>
+      <div class="ag-group">
+        <label class="ag-label">Email do aluno</label>
+        <input class="ag-input" type="email" id="agendarEmail" placeholder="email@exemplo.com">
+      </div>
+      <div class="ag-group">
+        <label class="ag-label">WhatsApp</label>
+        <input class="ag-input" type="tel" id="agendarTelefone" placeholder="(11) 99999-9999">
+      </div>
+      <div class="ag-group">
+        <label class="ag-label">Observações</label>
+        <textarea class="ag-input ag-textarea" id="agendarObs" placeholder="Ex: trazer roupa de treino, jejum 4h..."></textarea>
+      </div>
+      <div class="ag-footer">
+        <button class="btn btn-ghost" onclick="fecharAgendarModal()">Agendarei depois</button>
+        <button class="btn btn-gold"  onclick="salvarAgendamento()">💾 Salvar Agendamento</button>
+      </div>
+    </div>
+
+    <!-- CONFIRMAÇÃO (exibida após salvar) -->
+    <div class="ag-modal-body" id="agendarConfirmWrap" style="display:none">
+      <div class="ag-confirm">
+        <div class="ag-badge" id="agConfirmBadge">✓ Agendamento Salvo</div>
+        <div class="ag-confirm-name" id="agendarConfirmNome">—</div>
+        <div class="ag-confirm-date" id="agendarConfirmDate">—</div>
+        <div class="ag-actions" id="agendarActions"></div>
+      </div>
+      <div style="text-align:right;margin-top:16px">
+        <button class="btn btn-ghost" onclick="fecharAgendarModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
