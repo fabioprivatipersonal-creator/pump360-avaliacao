@@ -297,6 +297,30 @@ tr:hover td{background:rgba(255,255,255,0.02)}
   .form-grid-3,.form-grid-2{grid-template-columns:1fr}
   .result-grid{grid-template-columns:repeat(2,1fr)}
   .logo-text{font-size:16px}
+  /* Ocultar step postural no mobile */
+  .step-postural{display:none!important}
+  #tab-5{display:none!important}
+  /* Aviso mobile visível apenas em mobile */
+  .mobile-postural-notice{display:block!important}
+  /* Labels dos botões de navegação */
+  .btn-label-desktop{display:none!important}
+  .btn-label-mobile{display:inline!important}
+}
+/* Info card mobile — oculto por padrão no desktop */
+.mobile-postural-notice{
+  display:none;
+  background:linear-gradient(135deg,rgba(201,168,76,0.06),rgba(201,168,76,0.02));
+  border:1px solid rgba(201,168,76,0.35);
+  border-radius:var(--radius);
+  padding:16px 20px;
+  margin-bottom:16px;
+}
+.mobile-postural-notice-title{
+  font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--gold);margin-bottom:6px;display:flex;align-items:center;gap:8px;
+}
+.mobile-postural-notice-body{
+  font-size:13px;color:var(--muted);line-height:1.6;
 }
 @media(max-width:480px){
   .result-grid{grid-template-columns:1fr}
@@ -1096,7 +1120,10 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
     </div>
     <div class="nav-footer">
       <button class="btn btn-ghost btn-lg" onclick="goToTab(3)">← Anterior</button>
-      <button class="btn btn-gold btn-lg" onclick="goToTab(5)">Próximo: Postural →</button>
+      <button class="btn btn-gold btn-lg" onclick="goToTab(5)" id="btnProxTab4">
+        <span class="btn-label-desktop">Próximo: Postural →</span>
+        <span class="btn-label-mobile" style="display:none">Próximo: Metabólico →</span>
+      </button>
     </div>
   </div>
 
@@ -1152,6 +1179,16 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
 
   <!-- TAB 6: METABÓLICO -->
   <div class="tab-content" id="tab-6">
+
+    <!-- AVISO MOBILE: postural disponível só no desktop -->
+    <div class="mobile-postural-notice">
+      <div class="mobile-postural-notice-title">📱 Avaliação Postural</div>
+      <div class="mobile-postural-notice-body">
+        A avaliação postural está disponível apenas no computador.<br>
+        Complete os dados aqui e finalize a postural no notebook.
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-header">
         <div class="card-icon" style="font-size:18px">🔥</div>
@@ -1801,17 +1838,21 @@ function setDefaultDate(){
 function buildProgressSteps(){
   const c = document.getElementById('progressSteps');
   c.innerHTML = STEPS.map((s,i) => `
-    <div class="step-wrap">
+    <div class="step-wrap${s.id===5?' step-postural':''}">
       <div class="step ${currentTab===s.id?'active':currentTab>s.id?'done':''}" id="step-${s.id}" onclick="goToTab(${s.id})">
         <div class="step-circle">${currentTab>s.id?'✓':s.id}</div>
       </div>
       <div class="step-label" style="color:${currentTab===s.id?'var(--gold)':currentTab>s.id?'var(--green)':'var(--gray)'}">${s.label}</div>
     </div>
-    ${i<STEPS.length-1?'<div class="step-line" style="flex:1;margin-top:-14px"></div>':''}
+    ${i<STEPS.length-1?'<div class="step-line"${s.id===5?' style="flex:1;margin-top:-14px"':' style="flex:1;margin-top:-14px"'}></div>':''}
   `).join('');
 }
 
 function goToTab(n){
+  // No mobile, pular tab-5 (Postural) automaticamente
+  if(window.innerWidth <= 768 && n === 5){
+    n = currentTab < 5 ? 6 : 4;
+  }
   document.getElementById(`tab-${currentTab}`).classList.remove('active');
   currentTab = n;
   document.getElementById(`tab-${currentTab}`).classList.add('active');
