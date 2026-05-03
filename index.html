@@ -1399,6 +1399,17 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
       <div class="modal-title">📋 Histórico de Avaliações</div>
       <button class="modal-close" onclick="closeModal('historyModal')">✕</button>
     </div>
+
+    <!-- BUSCAR DA NUVEM -->
+    <div style="background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.25);border-radius:var(--radius);padding:16px;margin-bottom:16px">
+      <div class="section-title" style="margin-bottom:10px">☁ Buscar da Nuvem</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input type="text" id="cloudSearchInput" placeholder="Nome do aluno…" style="flex:1" onkeydown="if(event.key==='Enter')buscarNaNuvem(this.value)">
+        <button class="btn btn-outline" id="btnBuscarNuvem" onclick="buscarNaNuvem(document.getElementById('cloudSearchInput').value)">☁ Buscar</button>
+      </div>
+      <div id="cloudSearchResults"></div>
+    </div>
+
     <div id="historyList"></div>
     <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--bg3)">
       <div class="section-title">Comparativo Global (qualquer aluno)</div>
@@ -1844,7 +1855,7 @@ function buildProgressSteps(){
       </div>
       <div class="step-label" style="color:${currentTab===s.id?'var(--gold)':currentTab>s.id?'var(--green)':'var(--gray)'}">${s.label}</div>
     </div>
-    ${i<STEPS.length-1?'<div class="step-line"${s.id===5?' style="flex:1;margin-top:-14px"':' style="flex:1;margin-top:-14px"'}></div>':''}
+    ${i<STEPS.length-1?`<div class="step-line" style="flex:1;margin-top:-14px"></div>`:''}
   `).join('');
 }
 
@@ -3842,6 +3853,11 @@ function collectData(){
 }
 
 async function saveEvaluation(btnEl){
+  // Modo edição: avaliação carregada da nuvem → atualizar em vez de bloquear
+  if(avaliacaoAtual.jaSalvo && avaliacaoAtual.modoEdicao && avaliacaoAtual.supabaseId){
+    await atualizarNoSupabase(btnEl);
+    return;
+  }
   if(avaliacaoAtual.jaSalvo){
     showToast('Esta avaliação já foi salva. Use "+ Novo Cadastro" para iniciar uma nova.','warning');
     return;
@@ -3915,6 +3931,208 @@ function saveDraft(){
     const d=collectData();
     localStorage.setItem('pump360_draft',JSON.stringify(d));
   }catch(e){}
+}
+
+// ===================== SINCRONIZAÇÃO NUVEM =====================
+
+async function buscarNaNuvem(nome) {
+  if (!nome || nome.trim().length < 2) {
+    showToast('Digite pelo menos 2 caracteres', 'warning');
+    return;
+  }
+  const btn = document.getElementById('btnBuscarNuvem');
+  const results = document.getElementById('cloudSearchResults');
+  if (btn) { btn.disabled = true; btn.textContent = 'Buscando…'; }
+  if (results) results.innerHTML = '<p style="color:var(--muted);font-size:13px;text-align:center;padding:8px">Buscando…</p>';
+  try {
+    const { data, error } = await supabaseClient
+      .from('avaliacoes')
+      .select('id, token, created_at, dados')
+      .ilike('dados->dadosPessoais->>nome', '%' + nome.trim() + '%')
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if (error) throw error;
+    renderResultadosNuvem(data || []);
+  } catch (err) {
+    console.error('PUMP360: erro busca nuvem:', err);
+    showToast('Erro ao buscar. Verifique a conexão.', 'error');
+    if (results) results.innerHTML = '<p style="color:var(--danger);font-size:13px;text-align:center;padding:8px">Falha na conexão.</p>';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '☁ Buscar'; }
+  }
+}
+
+function renderResultadosNuvem(records) {
+  const container = document.getElementById('cloudSearchResults');
+  if (!container) return;
+  if (!records.length) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:13px;text-align:center;padding:8px">Nenhuma avaliação encontrada.</p>';
+    return;
+  }
+  container.innerHTML = records.map(r => {
+    const dp   = r.dados?.dadosPessoais || {};
+    const nome = dp.nome || '—';
+    const dt   = dp.dataAvaliacao || (r.created_at ? r.created_at.split('T')[0] : '—');
+    const peso = r.dados?.antropometria?.peso || '';
+    const percG = r.dados?.composicao?.percGordura || '';
+    const meta  = [peso ? peso + ' kg' : '', percG ? percG + '% G' : ''].filter(Boolean).join(' · ');
+    return `<div class="history-item" style="margin-bottom:6px">
+      <div class="history-item-info">
+        <div class="name">${nome} <span style="font-size:11px;color:var(--gold)">☁</span></div>
+        <div class="date">${formatDate(dt)}${meta ? ' · ' + meta : ''}</div>
+      </div>
+      <div class="history-item-actions">
+        <button class="btn btn-gold btn-sm" onclick="carregarDaNuvem(${r.id},'${r.token||''}')">Carregar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function carregarDaNuvem(supabaseId, token) {
+  try {
+    const { data: rec, error } = await supabaseClient
+      .from('avaliacoes')
+      .select('id, token, dados')
+      .eq('id', supabaseId)
+      .single();
+    if (error || !rec) throw error || new Error('Registro não encontrado');
+
+    const ev = rec.dados || {};
+    const dp = ev.dadosPessoais || {};
+    const an = ev.anamnese      || {};
+    const at = ev.antropometria || {};
+    const ci = at.circs         || {};
+
+    // Dados pessoais
+    setVal('nome',            dp.nome);
+    setVal('dataNasc',        dp.dataNascimento);
+    setVal('sexo',            dp.sexo);
+    setVal('telefone',        dp.telefone);
+    setVal('objetivo',        dp.objetivo);
+    setVal('nivelAtividade',  dp.nivelAtividade);
+    setVal('dataAvaliacao',   dp.dataAvaliacao);
+
+    // Anamnese
+    setVal('historicoLesoes', an.lesoes);
+    setVal('medicamentos',    an.medicamentos === 'Nenhum' ? '' : an.medicamentos);
+    setVal('horasSono',       an.sono);
+    setVal('nivelEstresse',   an.estresse);
+    setVal('obsGerais',       an.observacoes);
+    if (an.patologias && an.patologias !== 'Nenhuma') {
+      const pats = an.patologias.toLowerCase().split(',').map(p => p.trim());
+      ['hipertensao','diabetes','cardiopatia','dislipidemia','osteoporose','outros'].forEach(p => {
+        const el = document.getElementById('pat_' + p);
+        if (el) el.checked = pats.some(pt => pt.includes(p));
+      });
+    }
+
+    // Antropometria
+    setVal('peso',   at.peso);
+    setVal('altura', at.altura);
+    setVal('c_pescoco',    ci['Pescoco']       || ci['Pescoço']);
+    setVal('c_ombros',     ci['Ombros']);
+    setVal('c_torax',      ci['Torax']);
+    setVal('c_cintura',    ci['Cintura']);
+    setVal('c_abdomen',    ci['Abdomen']);
+    setVal('c_quadril',    ci['Quadril']);
+    setVal('c_coxaD',      ci['Coxa D']);
+    setVal('c_coxaE',      ci['Coxa E']);
+    setVal('c_pantD',      ci['Panturrilha D']);
+    setVal('c_pantE',      ci['Panturrilha E']);
+    setVal('c_bracoD_rel', ci['Braco D rel']   || ci['Braco D relaxado']);
+    setVal('c_bracoD_con', ci['Braco D con']   || ci['Braco D contraido']);
+    setVal('c_bracoE_rel', ci['Braco E rel']   || ci['Braco E relaxado']);
+    setVal('c_bracoE_con', ci['Braco E con']   || ci['Braco E contraido']);
+    setVal('c_antebD',     ci['Antebraco D']);
+    setVal('c_antebE',     ci['Antebraco E']);
+
+    // Dobras e metas (campos salvos localmente no collectData, presentes se disponíveis)
+    restoreDobras(ev.dobras || null);
+    restoreGoalsData(ev.metas || ev.goals || null);
+    if (typeof restorePosturalData === 'function') restorePosturalData(ev.postural || null);
+
+    // Recalcular
+    try { calcAge(); } catch(e) {}
+    try { calcIMC(); } catch(e) {}
+    try { calcBodyComp(); } catch(e) {}
+    try { calcMetabolism(); } catch(e) {}
+
+    // Configurar modo edição
+    avaliacaoAtual = Object.assign({}, ev, {
+      jaSalvo:       true,
+      modoEdicao:    true,
+      supabaseId:    rec.id,
+      supabaseToken: rec.token || token,
+      linkPublico:   ev.linkPublico ||
+        ('https://pump360-avaliacao.vercel.app/avaliacao.html?token=' + (rec.token || token))
+    });
+
+    _syncBotoesSalvarLabel();
+    closeModal('historyModal');
+
+    // No desktop vai direto para postural; no mobile vai para tab 1
+    if (window.innerWidth > 768) {
+      goToTab(5);
+      showToast('✓ Avaliação carregada. Complete a postural.', 'info');
+    } else {
+      goToTab(1);
+      showToast('✓ Avaliação carregada da nuvem!', 'success');
+    }
+
+  } catch (err) {
+    console.error('PUMP360: erro ao carregar da nuvem:', err);
+    showToast('Erro ao carregar avaliação da nuvem.', 'error');
+  }
+}
+
+async function atualizarNoSupabase(btnEl) {
+  if (!avaliacaoAtual.supabaseId) {
+    showToast('ID da avaliação não encontrado.', 'error');
+    return;
+  }
+  const btnOrigLabel = btnEl ? btnEl.innerHTML : null;
+  if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<span class="btn-spinner"></span> Atualizando…'; }
+
+  try {
+    coletarTodosDados();
+    const { error } = await supabaseClient
+      .from('avaliacoes')
+      .update({ dados: avaliacaoAtual })
+      .eq('id', avaliacaoAtual.supabaseId);
+    if (error) throw error;
+
+    saveDraft();
+
+    if (btnEl) {
+      btnEl.innerHTML = '✓ Atualizado!';
+      btnEl.style.color       = 'var(--success)';
+      btnEl.style.borderColor = 'var(--success)';
+      setTimeout(() => {
+        if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = btnOrigLabel; btnEl.style.color = ''; btnEl.style.borderColor = ''; }
+      }, 2500);
+    }
+    showToast('✓ Avaliação atualizada na nuvem!', 'success');
+
+  } catch (err) {
+    console.error('PUMP360: erro ao atualizar Supabase:', err);
+    if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = btnOrigLabel; }
+    showToast('Erro ao atualizar. Tente novamente.', 'error');
+  }
+}
+
+function _syncBotoesSalvarLabel() {
+  const isEdit = !!(avaliacaoAtual.modoEdicao && avaliacaoAtual.supabaseId);
+  ['btnSalvarHeader', 'btnSalvarTab'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    if (isEdit) {
+      btn.innerHTML   = '🔄 Atualizar Avaliação';
+      btn.title       = 'Atualizar dados desta avaliação na nuvem';
+    } else {
+      btn.innerHTML   = id === 'btnSalvarTab' ? '💾 Salvar Avaliação' : '💾 Salvar';
+      btn.title       = '';
+    }
+  });
 }
 
 // ---- dobras autosave (debounce 1 s) ----
