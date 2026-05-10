@@ -765,6 +765,27 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
 .ag-act-gcal{background:#1a73e8;color:#fff}.ag-act-gcal:hover{background:#1557b0}
 .ag-act-email{background:#1e7e34;color:#fff}.ag-act-email:hover{background:#155724}
 .ag-act-whats{background:#128c7e;color:#fff}.ag-act-whats:hover{background:#075e54}
+
+/* ===== MODAL DE ENVIO DA AVALIAÇÃO ===== */
+@keyframes envioSlideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+.envio-modal-box{background:var(--bg2);border:1px solid rgba(201,168,76,0.4);border-radius:var(--radius3);padding:0;max-width:480px;width:100%;animation:envioSlideUp 0.35s cubic-bezier(0.22,1,0.36,1) forwards}
+.envio-header{padding:28px 24px 18px;border-bottom:1px solid rgba(201,168,76,0.12);text-align:center}
+.envio-success-icon{font-size:44px;margin-bottom:10px;line-height:1}
+.envio-title{font-size:13px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.envio-subtitle{font-size:13px;color:rgba(255,255,255,0.45)}
+.envio-body{padding:20px 24px;display:flex;flex-direction:column;gap:12px}
+.envio-link-card{background:#0d0d0d;border:1.5px dashed rgba(201,168,76,0.45);border-radius:var(--radius);padding:14px 16px}
+.envio-link-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(201,168,76,0.6);margin-bottom:6px}
+.envio-link-url{font-size:11px;color:var(--gold);word-break:break-all;margin-bottom:10px;line-height:1.5;opacity:0.85}
+.envio-btn-copiar{background:transparent;border:1px solid rgba(201,168,76,0.5);color:var(--gold);border-radius:var(--radius2);padding:7px 16px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:.2s;font-family:inherit}
+.envio-btn-copiar:hover,.envio-btn-copiar:focus{background:var(--gold);color:#000}
+.envio-btn-whats{background:#25D366;color:#fff;border:none;border-radius:var(--radius2);padding:14px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:filter .15s,transform .15s;font-family:inherit;display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box}
+.envio-btn-whats:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.envio-btn-email{background:var(--gold);color:#000;border:none;border-radius:var(--radius2);padding:14px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:filter .15s,transform .15s;font-family:inherit;display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box}
+.envio-btn-email:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.envio-btn-email:disabled,.envio-btn-email[disabled]{opacity:0.7;transform:none;cursor:default}
+.envio-footer{padding:4px 24px 22px;text-align:center;display:flex;flex-direction:column;gap:8px}
+.envio-footer-hint{font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.3px}
 </style>
 </head>
 <body>
@@ -1353,6 +1374,7 @@ input:checked+.toggle-slider::before{background:#000;transform:translateX(20px)}
       <div style="display:flex;gap:8px">
         <button class="btn btn-outline btn-lg" id="btnSalvarTab" onclick="saveEvaluation(this)">💾 Salvar Avaliação</button>
         <button class="btn btn-outline btn-lg" id="btnAgendarTab" onclick="abrirAgendamentoManual()" style="border-color:var(--gold);color:var(--gold)">📅 Agendar Avaliação</button>
+        <button class="btn btn-outline btn-lg" id="btnEnviarTab" onclick="abrirModalEnvioExistente()" style="border-color:#25D366;color:#25D366">📤 Enviar Avaliação</button>
         <button class="btn btn-gold btn-lg" onclick="generatePDF()">📄 Gerar PDF Completo</button>
       </div>
     </div>
@@ -3909,7 +3931,24 @@ async function saveEvaluation(btnEl){
     }
     showToast(avaliacaoAtual.agendamentoFeito ? '✓ Avaliação salva! Agendamento já realizado.' : '✓ Avaliação salva!','success');
     // Gerar link do aluno automaticamente
-    if(avaliacaoAtual.supabaseToken) gerarLinkAluno(avaliacaoAtual.supabaseToken);
+    if(avaliacaoAtual.supabaseToken){
+      // Gerar link e salvar sem abrir o modal antigo
+      const _tkn  = avaliacaoAtual.supabaseToken;
+      const _link = 'https://pump360-avaliacao.vercel.app/avaliacao.html?token=' + _tkn;
+      avaliacaoAtual.linkPublico = _link;
+      _linkAtivo = _link;
+      saveDraft();
+      // Montar dados para o modal de envio
+      const _alunosEnv = getAlunos();
+      const _alunoEnv  = _alunosEnv.find(a => a.id === avaliacaoAtual.alunoId) || {};
+      const _dadosEnv  = {
+        nomeAluno:   data.nome || '',
+        telefone:    _alunoEnv.telefone || data.telefone || '',
+        email:       _alunoEnv.email    || data.email    || '',
+        linkPublico: _link
+      };
+      setTimeout(() => abrirModalEnvio(_dadosEnv), 500);
+    }
   } else {
     if(btnEl){
       btnEl.innerHTML = '✓ Salvo localmente';
@@ -4132,6 +4171,127 @@ function _syncBotoesSalvarLabel() {
       btn.innerHTML   = id === 'btnSalvarTab' ? '💾 Salvar Avaliação' : '💾 Salvar';
       btn.title       = '';
     }
+  });
+}
+
+// ===================== MODAL DE ENVIO DA AVALIAÇÃO =====================
+let _envioAtual = null;
+
+function abrirModalEnvio(dados) {
+  _envioAtual = dados;
+  _linkAtivo  = dados.linkPublico || '';
+
+  const urlEl = document.getElementById('envioLinkUrl');
+  if (urlEl) urlEl.textContent = dados.linkPublico || '—';
+
+  const sub = document.getElementById('envioSubtitulo');
+  if (sub) sub.textContent = dados.nomeAluno
+    ? 'Envie o resultado para ' + dados.nomeAluno
+    : 'Envie o resultado para o aluno';
+
+  // Reset botão copiar
+  const btnCopy = document.getElementById('btnCopiarLinkEnvio');
+  if (btnCopy) btnCopy.textContent = '📋 Copiar Link';
+
+  // Reset botão email
+  const btnEmail = document.getElementById('btnEnviarLinkEmail');
+  if (btnEmail) {
+    btnEmail.innerHTML  = '<span style="font-size:20px;line-height:1">📧</span><span>Enviar por Email</span>';
+    btnEmail.disabled   = false;
+    btnEmail.style.background = '';
+    btnEmail.style.color      = '';
+  }
+
+  document.getElementById('envioModal').classList.add('open');
+}
+
+function copiarLinkEnvio() {
+  if (!_linkAtivo) return;
+  const btn = document.getElementById('btnCopiarLinkEnvio');
+  const ok  = () => { if (btn) btn.textContent = '✓ Copiado!'; setTimeout(() => { if (btn) btn.textContent = '📋 Copiar Link'; }, 2000); };
+  navigator.clipboard.writeText(_linkAtivo).then(ok).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = _linkAtivo;
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    ok();
+  });
+}
+
+function enviarLinkWhatsApp(dados) {
+  if (!dados || !dados.linkPublico) { showToast('Salve a avaliação primeiro para gerar o link.', 'warning'); return; }
+  const tel = (dados.telefone || '').replace(/\D/g, '');
+  const msg = encodeURIComponent(
+    'Olá ' + (dados.nomeAluno || '') + '! 👋\n\n' +
+    '✅ Sua avaliação física está pronta!\n\n' +
+    '📊 Acesse seu resultado completo:\n' +
+    dados.linkPublico + '\n\n' +
+    '📱 Abra pelo celular para ver:\n' +
+    '• Composição corporal\n' +
+    '• Seus resultados e métricas\n' +
+    '• Metas dos próximos 3 meses\n' +
+    '• Plano alimentar sugerido\n\n' +
+    'Qualquer dúvida me chame! 💪\n\n' +
+    'Fábio Privati\n' +
+    'CREF 128210-G/SP | Método PUMP360'
+  );
+  const url = tel
+    ? 'https://wa.me/55' + tel + '?text=' + msg
+    : 'https://wa.me/?text=' + msg;
+  window.open(url, '_blank');
+}
+
+async function enviarLinkEmail(dados) {
+  if (!dados || !dados.email || !dados.email.includes('@')) {
+    showToast('Email do aluno não informado', 'warning');
+    return;
+  }
+  const btn = document.getElementById('btnEnviarLinkEmail');
+  if (btn) { btn.innerHTML = '<span>Enviando…</span>'; btn.disabled = true; }
+  try {
+    await emailjs.send(
+      'service_9bvhclu',
+      'template_db66p1p',
+      {
+        to_email:    dados.email,
+        email_aluno: dados.email,
+        nome_aluno:  dados.nomeAluno || '—',
+        data:        new Date().toLocaleDateString('pt-BR'),
+        horario:     '',
+        observacoes: '🔗 Acesse sua avaliação completa:\n' + dados.linkPublico
+      }
+    );
+    showToast('✓ Email enviado para ' + dados.email, 'success');
+    if (btn) {
+      btn.innerHTML = '<span style="font-size:20px;line-height:1">✓</span><span>Email Enviado!</span>';
+      btn.style.background = '#44cc88';
+      btn.style.color      = '#000';
+    }
+  } catch (e) {
+    console.error('PUMP360 emailjs envio:', e);
+    showToast('Erro ao enviar email. Tente novamente.', 'error');
+    if (btn) {
+      btn.innerHTML  = '<span style="font-size:20px;line-height:1">📧</span><span>Enviar por Email</span>';
+      btn.disabled   = false;
+    }
+  }
+}
+
+function abrirModalEnvioExistente() {
+  if (!avaliacaoAtual.linkPublico) {
+    showToast('Salve a avaliação primeiro para gerar o link.', 'warning');
+    return;
+  }
+  const alunos = getAlunos();
+  const aluno  = alunos.find(a => a.id === avaliacaoAtual.alunoId) || {};
+  abrirModalEnvio({
+    nomeAluno:   avaliacaoAtual.dadosPessoais?.nome
+                 || document.getElementById('nome')?.value
+                 || '—',
+    telefone:    aluno.telefone || avaliacaoAtual.dadosPessoais?.telefone || '',
+    email:       aluno.email    || avaliacaoAtual.dadosPessoais?.email    || '',
+    linkPublico: avaliacaoAtual.linkPublico
   });
 }
 
@@ -6195,6 +6355,47 @@ document.querySelectorAll('input,select,textarea').forEach(el=>{
         <button class="btn btn-ghost" onclick="fecharAgendarModal()">Fechar</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ===== MODAL DE ENVIO DA AVALIAÇÃO ===== -->
+<div class="modal" id="envioModal">
+  <div class="envio-modal-box">
+
+    <div class="envio-header">
+      <div class="envio-success-icon">🎉</div>
+      <div class="envio-title">Avaliação Salva com Sucesso!</div>
+      <div class="envio-subtitle" id="envioSubtitulo">Envie o resultado para o aluno</div>
+    </div>
+
+    <div class="envio-body">
+
+      <!-- Card do link gerado -->
+      <div class="envio-link-card">
+        <div class="envio-link-label">🔗 Link da Avaliação</div>
+        <div class="envio-link-url" id="envioLinkUrl">—</div>
+        <button class="envio-btn-copiar" id="btnCopiarLinkEnvio" onclick="copiarLinkEnvio()">📋 Copiar Link</button>
+      </div>
+
+      <!-- WhatsApp -->
+      <button class="envio-btn-whats" onclick="enviarLinkWhatsApp(_envioAtual)">
+        <span style="font-size:20px;line-height:1">📱</span>
+        <span>Enviar pelo WhatsApp</span>
+      </button>
+
+      <!-- Email -->
+      <button class="envio-btn-email" id="btnEnviarLinkEmail" onclick="enviarLinkEmail(_envioAtual)">
+        <span style="font-size:20px;line-height:1">📧</span>
+        <span>Enviar por Email</span>
+      </button>
+
+    </div>
+
+    <div class="envio-footer">
+      <button class="btn btn-ghost" style="width:100%" onclick="closeModal('envioModal')">Fechar</button>
+      <div class="envio-footer-hint">O link ficará salvo no histórico do aluno</div>
+    </div>
+
   </div>
 </div>
 
