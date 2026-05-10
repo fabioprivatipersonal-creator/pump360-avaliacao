@@ -4279,10 +4279,47 @@ async function enviarLinkEmail(dados) {
 }
 
 function abrirModalEnvioExistente() {
+  // Tentar recuperar link do localStorage se não estiver em memória
   if (!avaliacaoAtual.linkPublico) {
-    showToast('Salve a avaliação primeiro para gerar o link.', 'warning');
+    try {
+      const draft = JSON.parse(localStorage.getItem('pump360_draft') || '{}');
+      if (draft.linkPublico) avaliacaoAtual.linkPublico = draft.linkPublico;
+      if (draft.supabaseToken) avaliacaoAtual.supabaseToken = draft.supabaseToken;
+    } catch(e) {}
+  }
+
+  // Tentar recuperar do histórico pelo nome do aluno
+  if (!avaliacaoAtual.linkPublico) {
+    try {
+      const nome = avaliacaoAtual.dadosPessoais?.nome
+                || document.getElementById('nome')?.value || '';
+      if (nome) {
+        const hist = JSON.parse(localStorage.getItem('pump360_history') || '[]');
+        const found = hist.filter(h =>
+          (h.dadosPessoais?.nome || '').toLowerCase() === nome.toLowerCase()
+        ).sort((a,b) => new Date(b.timestamp||0) - new Date(a.timestamp||0))[0];
+        if (found?.linkPublico) {
+          avaliacaoAtual.linkPublico = found.linkPublico;
+          avaliacaoAtual.supabaseToken = found.supabaseToken;
+        }
+      }
+    } catch(e) {}
+  }
+
+  // Se ainda não tem link, gerar um baseado no token salvo
+  if (!avaliacaoAtual.linkPublico && avaliacaoAtual.supabaseToken) {
+    avaliacaoAtual.linkPublico = 'https://pump360-avaliacao.vercel.app/avaliacao.html?token=' + avaliacaoAtual.supabaseToken;
+  }
+
+  // Se não tem link de jeito nenhum, salvar primeiro
+  if (!avaliacaoAtual.linkPublico) {
+    showToast('Salvando na nuvem para gerar o link...', 'info');
+    salvarAvaliacao().then(() => {
+      setTimeout(() => abrirModalEnvioExistente(), 1500);
+    });
     return;
   }
+
   const alunos = getAlunos();
   const aluno  = alunos.find(a => a.id === avaliacaoAtual.alunoId) || {};
   abrirModalEnvio({
